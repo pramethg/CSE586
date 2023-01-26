@@ -39,11 +39,11 @@ def generateNoisyData(num_points=50):
     t = y + noise
 
     # Save the data
-    np.savez('data.npz', x=x, y=y, t=t, sigma=sigma)
+    np.savez(f'data{num_points}.npz', x=x, y=y, t=t, sigma=sigma)
 
 # Feel free to change aspects of this function to suit your needs.
 # Such as the title, labels, colors, etc.
-def plot_with_shadded_bar(x=None, y=None, sigma=None):
+def plot_with_shadded_bar(x=None, y=None, sigma=None, num_points = 50):
     """
     Plots the GT data for visualization.
     Args:
@@ -51,16 +51,16 @@ def plot_with_shadded_bar(x=None, y=None, sigma=None):
         y: y values
         sigma: standard deviation
     """
-    if not os.path.exists('results'):
-        os.makedirs('results')
+    if not os.path.exists(f'results{num_points}'):
+        os.makedirs(f'results{num_points}')
 
     # Example plotting with the GT data, you can use this as a reference. You will later 
     # use this function to plot the results of your model.
-    np.load('data.npz')
-    x = np.load('data.npz')['x']
-    y = np.load('data.npz')['y']
-    t = np.load('data.npz')['t']
-    sigma = np.load('data.npz')['sigma']
+    np.load(f'data{num_points}.npz')
+    x = np.load(f'data{num_points}.npz')['x']
+    y = np.load(f'data{num_points}.npz')['y']
+    t = np.load(f'data{num_points}.npz')['t']
+    sigma = np.load(f'data{num_points}.npz')['sigma']
 
     # Plot the ground truth curve of the generated data.
     fig, ax = plt.subplots()
@@ -76,10 +76,10 @@ def plot_with_shadded_bar(x=None, y=None, sigma=None):
     ax.set_ylabel('t')
     ax.set_title('Data Point Plot Example')
 
-    plt.savefig('results/gt_data.png')
+    plt.savefig(f'results{num_points}/gt_data.png')
     plt.close(fig)
 
-def plot_results(x=None, y=None, pred1 = None, label1 = None, pred2 = None, label2 = None, title = None, file_name = None):
+def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pred2 = None, label2 = None, title = None, file_name = None, num_points = 50):
     """
     Plots the GT data for visualization.
     Args:
@@ -87,13 +87,14 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, pred2 = None, labe
         y: y values
         pred: prediction values
     """
-    if not os.path.exists('results'):
-        os.makedirs('results')
+    if not os.path.exists(f'results{num_points}'):
+        os.makedirs(f'results{num_points}')
 
-    np.load('data.npz')
-    x = np.load('data.npz')['x']
-    y = np.load('data.npz')['y']
-    t = np.load('data.npz')['t']
+    np.load(f'data{num_points}.npz')
+    x = np.load(f'data{num_points}.npz')['x']
+    y = np.load(f'data{num_points}.npz')['y']
+    t = np.load(f'data{num_points}.npz')['t']
+    sigma = np.load(f'data{num_points}.npz')['sigma']
 
     # Plot the ground truth curve of the generated data.
     fig, ax = plt.subplots()
@@ -105,48 +106,54 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, pred2 = None, labe
 
     # Plot the noisy data points.
     ax.scatter(x, t, label='Noisy Data')
+    ax.fill_between(x, y-sigma, y+sigma, color='r', alpha=0.2)
 
     ax.set_xlabel('X Values')
     ax.set_ylabel('Y Values, Predictions, Noisy Data')
     ax.set_title(title)
     plt.legend()
-    plt.savefig(f'results/{file_name}.png')
+    plt.savefig(f'results{num_points}/{file_name}.png')
     plt.show()
     plt.close(fig)
 
 
 # TODO: Use the existing functions to create/load data as needed. You will now call your linear regression model
 # to fit the data and plot the results.
-def linear_regression():
+def linear_regression(num_points = 50):
     # Load the data
-    np.load('data.npz')
-    x = np.load('data.npz')['x']
-    y = np.load('data.npz')['y']
-    t = np.load('data.npz')['t']
-    sigma = np.load('data.npz')['sigma']
+    np.load(f'data{num_points}.npz')
+    x = np.load(f'data{num_points}.npz')['x']
+    y = np.load(f'data{num_points}.npz')['y']
+    t = np.load(f'data{num_points}.npz')['t']
+    sigma = np.load(f'data{num_points}.npz')['sigma']
 
-    ML_Model = ML(degree = 3)
-    ml_weights = ML_Model.fit(x, t)
-    ml_predictions = ML_Model.predict(x, ml_weights)
-    plot_results(x, y, ml_predictions, title = "ML Model Degree 3", file_name = "ml_3", label1 = "ML Model Predictions")
+    for i in [0,1,3,9]:
+        ML_Model = ML(degree = i)
+        ml_weights = ML_Model.fit(x, t)
+        ml_predictions = ML_Model.predict(x, ml_weights)
+        plot_results(x, y, ml_predictions, title = f"ML Model Degree {i}", file_name = f"ml_{i}", label1 = "ML Model Prediction", num_points = num_points)
 
-    MAP_Model = MAP(degree = 3, customReguralization = False)
-    map_weights = MAP_Model.fit(x, t)
-    map_predictions = MAP_Model.predict(x, map_weights)
-    plot_results(x, y, map_predictions, title = "MAP Model Degree 3", file_name = "map_3", label1 = "MAP Model Predictions")
+    for i in [0,1,3,9]:
+        MAP_Model = MAP(degree = i, customReguralization = False)
+        map_weights = MAP_Model.fit(x, t)
+        map_predictions = MAP_Model.predict(x, map_weights)
+        plot_results(x, y, map_predictions, title = f"MAP Model Degree {i}", file_name = f"map_{i}", label1 = "MAP Model Prediction", num_points = num_points)
 
-    plot_results(x, y, pred1 = ml_predictions, label1 = "ML Model Degree 3", pred2 = map_predictions, label2 = "MAP Model Degree 3", title = "ML vs MAP Predictions", file_name = "mlevsmap")
+    # plot_results(x, y, pred1 = ml_predictions, label1 = "ML Model Degree 3", pred2 = map_predictions, label2 = "MAP Model Degree 3", title = "ML vs MAP Predictions", file_name = "mlevsmap")
 
-    lnlambda = -18
-    CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
-    custom_weights = CustomModel.fit(x, t)
-    custom_predictions = CustomModel.predict(x, custom_weights)
-    plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = "lnlambda-18", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model")
+    # for lnlambda in [-18, -15, -13]:
+    # CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
+    # custom_weights = CustomModel.fit(x, t)
+    # custom_predictions = CustomModel.predict(x, custom_weights)
+    # plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = "lnlambda-18", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model")
 
 def main():
-    generateNoisyData(50)
+    generateNoisyData()
     plot_with_shadded_bar()
     linear_regression()
+    generateNoisyData(num_points=20)
+    plot_with_shadded_bar(num_points=20)
+    linear_regression(num_points=20)
 
 
 if __name__ == '__main__':
