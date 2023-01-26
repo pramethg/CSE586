@@ -1,0 +1,359 @@
+
+\documentclass[12pt,twoside,a4paper]{article} 
+
+\usepackage{color,amssymb,amsmath,mathtools} 
+\usepackage{fullpage,caption, listings,clrscode,placeins}
+\usepackage{amsmath,bm}
+ 
+ % Metadata info
+\newcommand{\mytitle}{Project 1} 
+\newcommand{\mydate}{\today} 
+\newcommand{\myauthors}{Prameth Gaddale}
+
+% Setting Hyperref parameters
+\usepackage[
+	bookmarks,
+	bookmarksnumbered,
+	pdfpagemode={UseOutlines},
+	plainpages=false,
+	pdfpagelabels=true,
+	pdfauthor={\myauthors},
+	pdftitle={\mytitle},
+	pagebackref=true,
+	pdftex,
+	colorlinks=true,
+	linkcolor=red,
+	urlcolor={blue}, 
+	pagebackref=true]
+	{hyperref}
+
+\title{\mytitle}
+\author{\myauthors}
+\date{\mydate}
+
+% Some useful commands from CVPR
+\usepackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{c.f}\onedot} \def\Cf{\emph{C.f}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\etal{\emph{et~al}\onedot}
+\makeatother
+
+
+\pagestyle{empty}
+\usepackage{fancyref,fancyhdr}
+%\usepackage[hmarginratio=1:1, top=2.0cm, bottom=5.0cm, left=1cm, right=1cm]{geometry}
+\setlength{\headheight}{14pt}
+\setlength{\headsep}{15pt}
+\setlength{\footskip}{50pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhf[HLE,HRO]{\footnotesize{\myauthors}}
+\fancyhf[HLO,HRE]{\footnotesize{\mydate}}
+\fancyhf[FLO,FRE]{\footnotesize{\mytitle}} 
+\fancyhf[FLE,FRO]{\thepage }
+
+
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps}
+
+% 
+\usepackage[numbers, sort&compress]{natbib}
+
+\usepackage[senames,dvipsnames,svgnames,table]{xcolor}
+
+\newenvironment{tightitemize} % Defines the tightitemize environment which modifies the itemize environment to be more compact
+{\vspace{-\topsep}\begin{itemize}\itemsep1pt \parskip0pt \parsep0pt}
+{\end{itemize}\vspace{-\topsep}} 
+
+% If you want to write proofs
+\newtheorem{claim}{Claim}[section]
+\newtheorem{lemma}{Lemma}[section]
+
+% Some useful packages (look at booktabs for good looking tables)
+\usepackage{subcaption,booktabs,placeins}
+
+%BEGIN THE DOCUMENT
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+ABSTRACT
+\end{abstract}
+\vspace{1ex}
+
+\tableofcontents
+% Break until the next page
+\vfill
+\pagebreak
+
+% SECTIONS
+
+\section{Linear Regression}
+Supervised learning problems with the training data comprising of input vectors along with their corresponding target vectors, and the desired output consisting of one or more continuous variables is called \textbf{Regression}\cite{ChrisPRML}. Bishop\cite{ChrisPRML} mentions about the use of polynomial curve fitting as an example to illustrate the usage and role of linear regression in real-world problems.\\
+In polynomial curve fitting, we are given a training set (of $N$ examples) of $\textbf{x}$, where $\textbf{x} \equiv (x_1,...,x_N)^T$ and their corresponding target values $\textbf{t} \equiv (t_1,...,t_N)^T$.\\
+Primarily, the objective of polynomial curve fitting is to find relevant parameters(represented by polynomial coefficients) $w_0, w_1, ... w_M$ that fit a polynomial function of degree $M$ represented as \ref{POLY}(Equation 1.1 \cite{ChrisPRML}),
+\begin{equation}\label{POLY}
+    y(x, \textbf{w}) = w_0 + w_1x + w2+w^2 + ... + w_Mx^M = \sum_{j=0}^{M}w_jx^j
+\end{equation}
+To arrive to our objective, we have to parameters that satisfy the minimization of an \textit{error function}, that measures the magnitude of misfit between our targets and predictions. A suitable criteria for optimizing the model parameters is to minimize the squared sum between the targets and predicted values, mentioned in \ref{ERRML1}.
+\begin{equation}\label{ERRML1}
+    E(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}\{y(x^n, \textbf{w})-t_n\}^2
+\end{equation}
+The two most popular approaches to solve the error function and estimate the model parameters which take the uncertainty into consideration through the use of Bayesian statistics are:
+\begin{enumerate}
+    \item Maximum Likelihood Estimator
+    \item Maximum A Posteriori Estimator
+\end{enumerate}
+%-------------------------------------------------------------------------
+\subsection{Maximum Likelihood Estimator}
+
+\begin{equation}\label{1.60}
+    p(t|x,\textbf{w}, \beta) = \mathcal{N}(t|y(x,\textbf(w)),\beta^{-1})
+\end{equation}
+
+\begin{equation}\label{1.61}
+    p(t|x,\textbf{w}, \beta) = \prod_{n=1}^{N}\mathcal{N}(t|y(x,\textbf(w)),\beta^{-1})
+\end{equation}
+
+\begin{equation} \label{1.46}
+    \mathcal{N}(x|\mu,\sigma^2) = \frac{1}{(2\pi\sigma^2)^{1/2}}\exp\{-\frac{1}{2\sigma^2}(x-\mu)^2\}
+\end{equation}
+
+\begin{align} \label{1.62}
+\ln p(t|x,\textbf{w}, \beta) =& \sum_{n=1}^{N} \ln \{ \mathcal{N}(t_n|y(x_n,\textbf{w}),\beta^{-1}) \} \\
+=& \sum_{n=1}^{N} \ln \{ \frac{1}{(2\pi\beta^{-1})^{1/2}}\exp\{-\frac{1}{2\beta^{-1}}\{t_n-y(x_n,\textbf{w})\}^2\}\} \\
+=&\sum_{n=1}^{N} \ln \{ \frac{1}{(2\pi\beta^{-1})^{1/2}} \} + \sum_{n=1}^{N} \ln \{\exp\{-\frac{1}{2\beta^{-1}}\{t_n-y(x_n,\textbf{w})\}^2\}\} \\
+=& N\ln \{ \frac{\beta}{(2\pi)} \}^{1/2} + \sum_{n=1}^{N} {-\frac{\beta}{2}\{y(x_n,\textbf{w})-t_n\}^2} \\
+\ln p(t|x,\textbf{w}, \beta) =& -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi)
+\end{align}
+
+\begin{equation} \label{NLL}
+    -\ln p(t|x,\textbf{w}, \beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi)
+\end{equation}
+
+\begin{equation} \label{MLPRED}
+    y = \textbf{w}^T\phi(x_n)
+\end{equation}
+
+\begin{equation}\label{ERRML2}
+    E_D(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2
+\end{equation}
+
+\begin{align}
+\frac{\partial E_D(\textbf{w})}{\partial \textbf{w*}} =& 0\\
+\frac{\partial}{\partial \textbf{w*}} \{\frac{1}{2}\sum_{n=1}^{N}\{y(x^n, \textbf{w})-t_n\}^2\} =& 0 \\
+\frac{1}{2}.2.\sum_{n=1}^{N}\frac{\partial y_n}{\partial \textbf{w}_i}(y_n-t_n) =& 0 \\
+\sum_{n=1}^{N}\frac{\partial y_n}{\partial \textbf{w}_i}(\sum_{j=0}^{M}{w_jx^j_n}-t_n) =& 0 \\
+\sum_{n=1}^{N}x_n^i(\sum_{j=0}^{M}{w_jx^j_n}-t_n) =& 0 \\
+\sum_{n=1}^{N}x_n^i\sum_{j=0}^{M}{w_jx^j_n} - \sum_{n=1}^{N}x_n^it_n =& 0 \\
+\sum_{n=1}^{N}\sum_{j=0}^{M}{x_n^iw_jx^j_n} - \sum_{n=1}^{N}x_n^it_n =& 0 \\
+\sum_{n=1}^{N}\sum_{j=0}^{M}{x^{i+j}_nw_j} - \sum_{n=1}^{N}x_n^it_n =& 0 \label{MLDERSUM}
+\end{align}
+
+\begin{align}
+\textbf{X}^T\textbf{X}\textbf{w*} - \textbf{X}^Tt =& 0 \\
+\textbf{X}^T\textbf{X}\textbf{w*} =& \textbf{X}^Tt \\
+\textbf{w*} =& (\textbf{X}^T\textbf{X})^{-1}\textbf{X}^Tt \label{WMLFINAL}
+\end{align}
+
+ OR THIS:
+ \begin{equation}
+     \triangledown\ln p(t|w,\beta) = \sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2
+ \end{equation}
+
+\begin{align}
+\frac{\partial E_D(\textbf{w})}{\partial \textbf{w*}} =& 0\\
+\frac{\partial}{\partial \textbf{w*}} \{ \frac{1}{2}\sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2 \} =& 0 \\
+\sum_{n=1}^{N}t_n\phi(x_n)^T - \textbf{w}^T\left(\sum_{n=1}^{N}{\phi(x_n)\phi(x_n)^T} \right) =& 0 \\
+\textbf{w}^T\left(\sum_{n=1}^{N}{\phi(x_n)\phi(x_n)^T} \right) =& \sum_{n=1}^{N}t_n\phi(x_n)^T \\
+\textbf{w}^T(\Phi\Phi^T) =&\textbf{t}\Phi^T \\
+\textbf{w}^T =& (\Phi\Phi^T)^{-1}\textbf{t}\Phi^T \\
+\textbf{w}_{ML} =& (\Phi^T\Phi)^{-1}\Phi^T\textbf{t} \label{WML}
+\end{align}
+
+\begin{equation} \label{BETAML}
+    \beta_{ML}^{-1} = \frac{1}{N}\sum_{n=1}^{N}\{t_n - \textbf{w}_{ML}^T\phi(x_n)\}^2
+\end{equation}
+
+\begin{equation} \label{PREDDML}
+    p(t|x,\textbf{w}_{ML},\beta_{ML}) = \mathcal{N}(y(x,\textbf{w}_{ML}), \beta^{-1}_{ML})
+\end{equation}
+
+%-------------------------------------------------------------------------
+\subsection{Maximum A Posteriori Estimator}
+
+\begin{align} 
+p(\textbf{w}|\alpha) =& \mathcal{N}(\textbf(w)|0,\alpha^{-1}\textbf{I}) \\
+=& \frac{1}{(2\pi\alpha^{-1})^{1/2}}\exp\{-\frac{1}{2\alpha^{-1}}(\textbf{w}-0)^2\} \\
+p(\textbf{w}|\alpha) =& \left( \frac{\alpha}{2\pi}\right)^{(M+1)/2} \exp\left\{ -\frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}
+\end{align}
+
+\begin{equation}
+    p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \propto p(\textbf{t}|\textbf{x},\textbf{w},\beta) p(\textbf{w}|\alpha)
+\end{equation}
+
+%-------------------------------------------------------------------------
+\subsection{Report}
+Given training dataset consisted of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
+%-------------------------------------------------------------------------
+\subsubsection{Visualization}
+
+%-------------------------------------------------------------------------
+\subsubsection{Comparison}
+
+%-------------------------------------------------------------------------
+\subsubsection{Summary}
+
+%-------------------------------------------------------------------------
+\subsection{Extra Credit}
+Here are my solutions for the extra credit problems.
+%-------------------------------------------------------------------------
+\subsubsection{Additional Lambda Values}
+
+%-------------------------------------------------------------------------
+\subsubsection{Varying Degree of Polynomial Order}
+
+%-------------------------------------------------------------------------
+\subsubsection{Varying Number of Sample Points}
+
+%-------------------------------------------------------------------------
+\subsubsection{Curse of Dimensionality}
+
+%-------------------------------------------------------------------------
+\pagebreak
+\section{Classification}
+
+%-------------------------------------------------------------------------
+\subsection{Fisher Projection}
+
+%-------------------------------------------------------------------------
+\subsection{Report}
+
+%-------------------------------------------------------------------------
+\subsubsection{Confusion Matrix}
+
+%-------------------------------------------------------------------------
+\subsubsection{Classification Rates}
+
+%-------------------------------------------------------------------------
+\subsubsection{Analysis}
+
+%-------------------------------------------------------------------------
+\subsubsection{Conclusion}
+
+%-------------------------------------------------------------------------
+\pagebreak
+\section{Central Limit Theorem}
+
+%-------------------------------------------------------------------------
+\subsection{Introduction}
+
+%-------------------------------------------------------------------------
+\subsection{Question 1}
+
+\subsubsection*{Question:}
+\textbf{For a coin with a probability of heads of 0.6 in each flip, calculate the exact distribution of the total number of heads when the coin is flipped 5 times. Provide the equation(s) used to generate the result and a brief explanation of you reasoning.}
+
+\subsubsection*{Solution:}
+\label{Q1 Solution}
+When a coin is flipped, there are two possible outcomes: head and tails each carrying a fixed probability. Given is coin is imbalanced in nature with the probability of head in each flip being \textbf{$0.6$}.\\
+Binary outcome experiments such as coin-toss follow the \textbf{Binomial Distribution}. Let $X$ be the binomial random variable over the coin-toss experiment.\\
+Hence, the probability mass function for the experiment representing the binomial random variable $X$ is given by,
+\begin{equation} \label{BD1}
+F(\mathbf{X = x}) = 
+    \begin{cases}
+        {{n}\choose{x}}p^{x}q^{n-x} & ,x = 0,1,2,...,n\\
+        0   & ,otherwise
+    \end{cases}
+\end{equation}
+The parameters in the binomial distribution are:
+\begin{itemize}
+    \item $n$: The total number of trials.
+    \item $p$: The probability of success on a single trial.
+    \item $q$: The probability of failure on a single trial.
+    \item $x$: Represents the trial number(which is a whole number, $0\le x \le n$)
+\end{itemize}
+In our case, the probability of heads and tails adds up to 1. Hence we can write,
+$$q=1-p$$
+By incorporating that change in \eqref{BD1} we get,
+\begin{equation} \label{BD2}
+F(\mathbf{X = x}) = 
+    \begin{cases}
+        {{n}\choose{x}}p^{x}(1-p)^{n-x} & ,x = 0,1,2,...,n\\
+        0   & ,otherwise
+    \end{cases}
+\end{equation}
+We get $n=5$(as total number of coin flips is 5), $p=0.6$ and $q=0.4$.
+\begin{equation} \label{BD3}
+F(\mathbf{X = x}) = 
+    \begin{cases}
+        {{5}\choose{x}}(0.6)^{x}(0.4)^{5-x} & ,x = 0,1,2,...,n\\
+        0   & ,otherwise
+    \end{cases}
+\end{equation}
+Therefore \eqref{BD3} represents the probability distribution of total number of heads when the coin is flipped 5 times.\\
+In short hand notation, we can also write that,
+$$S_n \sim Binomial(n=5, p=0.6)$$
+Hence, we can say that the exact distribution of the total number of heads if coin is flipped 5 times is represented by a Binomial Distribution with parameters $n=5$ and $p=0.6$.
+%-------------------------------------------------------------------------
+\subsection{Question 2}
+
+\subsubsection*{Question:}
+\textbf{Using the central limit theorem, approximate the distribution of the total number of heads when the coin is flipped 5000 times. Provide the equation(s) used to generate the result and a brief explanation of you reasoning.}
+
+\subsubsection*{Solution:}
+The coin-toss experiment as we know from \ref{Q1 Solution}, follows the Binomial Distribution for the probability estimation. However, for 5000 coin flips, calculation of probability through the use of factorials in the combination terms becomes a computationally expensive. From central limit theorem we know that, for a large number of trails in an experiment, we can approximate the population to be of a normal distribution. \\
+\begin{itemize}
+    \item Let $F_n$ represent the probability distribution we need to estimate for 5000 coin flips, which comes from a \textbf{Binomial Distribution}. $$F_n \sim Binomial(n, p)$$
+    \item Let the approximate normal distribution have a mean, $\mu_N$ and variance $\sigma^2_N$.
+    \item Let the approximate normal distribution have a mean, $\mu_N$ and variance $\sigma^2_N$.
+\end{itemize}
+From central limit theorem, we know that,
+\begin{equation}\label{DMEAN}
+    \mu_N = \mu
+\end{equation}
+\begin{equation}\label{DVAR}
+    \sigma_N^2 = \frac{\sigma^2}{n}
+\end{equation}
+
+Some useful properties are:
+\begin{itemize}
+    \item \textbf{Mean}: $\mu = np$
+    \item \textbf{Variance}: $\sigma^2 = np(1-p)$
+\end{itemize}
+For our case, we get,
+$$F_{n = 5000} \sim Binomial(n = 5000, p = 0.6)$$
+\begin{align*}
+    Mean, \mu =& n*p \\
+        =& 5000*0.6 \\
+        \mu=& 3000
+\end{align*}
+\begin{align*}
+    Variance, \sigma^2 =& n*p*(1-p) \\
+        =& 5000*0.6*0.4 \\
+        \mu=& 1200
+\end{align*}
+From \eqref{DMEAN} and \eqref{DVAR}, we get
+$$\mu_N = 3000$$
+\begin{align*}
+    \sigma_N^2 =& \frac{\sigma^2}{n} \\
+               =& \frac{1200}{5000}  \\
+    \sigma_N^2 =& 0.24
+\end{align*}
+$$F_{n=5000} \sim Normal(\mu_N = 3000, \sigma^2_N = 0.24)$$
+Hence, we can say that the exact distribution of the total number of heads if coin is flipped 5000 times can be approximated using Central Limit Theorem by a Gaussian Distribution with parameters $\mu_N = 3000$ and $\sigma^2_N = 0.24$.
+%-------------------------------------------------------------------------
+
+% BIBLIOGRAPHY
+{\small
+\bibliographystyle{IEEEtranN}
+\bibliography{mybib}}
+
+\end{document}

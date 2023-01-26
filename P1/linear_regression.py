@@ -135,7 +135,7 @@ def linear_regression():
     map_predictions = MAP_Model.predict(x, map_weights)
     plot_results(x, y, map_predictions, title = "MAP Model Degree 3", file_name = "map_3", label1 = "MAP Model Predictions")
 
-    plot_results(x, y, pred1 = ml_predictions, label1 = "ML Model Degree 3", pred2 = map_predictions, label2 = "MAP Model Degree 3", title = "ML vs MAP Predictions")
+    plot_results(x, y, pred1 = ml_predictions, label1 = "ML Model Degree 3", pred2 = map_predictions, label2 = "MAP Model Degree 3", title = "ML vs MAP Predictions", file_name = "mlevsmap")
 
     lnlambda = -18
     CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
