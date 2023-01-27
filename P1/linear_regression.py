@@ -113,13 +113,21 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
     ax.set_title(title)
     plt.legend()
     plt.savefig(f'results{num_points}/{file_name}.png')
-    plt.show()
+    # plt.show()
     plt.close(fig)
+
+# def rmse(pred, targets):
+#     error = np.sum(np.square(pred - targets))
+#     rmse = np.sqrt(2*error/pred.shape[0])
+#     return rmse
+
+def rmse(a, b):
+    return np.sqrt(np.mean(np.square(a-b)))
 
 
 # TODO: Use the existing functions to create/load data as needed. You will now call your linear regression model
 # to fit the data and plot the results.
-def linear_regression(num_points = 50):
+def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
     # Load the data
     np.load(f'data{num_points}.npz')
     x = np.load(f'data{num_points}.npz')['x']
@@ -139,21 +147,40 @@ def linear_regression(num_points = 50):
         map_predictions = MAP_Model.predict(x, map_weights)
         plot_results(x, y, map_predictions, title = f"MAP Model Degree {i}", file_name = f"map_{i}", label1 = "MAP Model Prediction", num_points = num_points)
 
+    if calcRMSE:
+        rmse_arr = []
+        for lnlambda in range(-40, -20):
+            inputs = np.load("data50.npz")["x"]
+            targets = np.load("data50.npz")["t"]
+            rmseModel = MAP(degree = rmse_degree, customReguralization = True, lnlambda = lnlambda)
+            weights = rmseModel.fit(inputs, targets)
+            predictions = rmseModel.predict(inputs, weights)
+            rmse_error = rmse(predictions, targets)
+            rmse_arr.append(rmse_error)
+        plt.plot(range(-40,-20), rmse_arr)
+        plt.ylim([0, 1])
+        plt.xlabel(r"ln$\lambda$")
+        plt.ylabel(r"E_{RMS}")
+        plt.legend
+        plt.savefig("rmse-lnlambda.png")
+        plt.show()
+
     # plot_results(x, y, pred1 = ml_predictions, label1 = "ML Model Degree 3", pred2 = map_predictions, label2 = "MAP Model Degree 3", title = "ML vs MAP Predictions", file_name = "mlevsmap")
 
-    # for lnlambda in [-18, -15, -13]:
-    # CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
-    # custom_weights = CustomModel.fit(x, t)
-    # custom_predictions = CustomModel.predict(x, custom_weights)
-    # plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = "lnlambda-18", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model")
+    for lnlambda in [-18, -15, -13]:
+        CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
+        custom_weights = CustomModel.fit(x, t)
+        custom_predictions = CustomModel.predict(x, custom_weights)
+        plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = f"lnlambda{lnlambda}", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model", num_points = num_points)
 
 def main():
-    generateNoisyData()
-    plot_with_shadded_bar()
-    linear_regression()
-    generateNoisyData(num_points=20)
-    plot_with_shadded_bar(num_points=20)
-    linear_regression(num_points=20)
+    num_points = 50
+    generateNoisyData(num_points = num_points)
+    plot_with_shadded_bar(num_points = num_points)
+    linear_regression(num_points = num_points, calcRMSE = True)
+    # generateNoisyData(num_points=20)
+    # plot_with_shadded_bar(num_points=20)
+    # linear_regression(num_points=20)
 
 
 if __name__ == '__main__':
