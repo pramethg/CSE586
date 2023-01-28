@@ -73,8 +73,8 @@ def viz_desc_bounds(classifier, feats, labels, idxA, idxB):
     handles = [plt.plot([],[],color=plt.cm.jet(i/len(lut)), ls="", marker=markers[i])[0] for i in range(len(lut))]
     labels = [f'Class {i}' for i in lut]
     ax.legend(handles, labels, loc='upper right')
-    plt.show()
     plt.savefig('results/decision_boundary.png')
+    plt.show()
 
 
 def load_dataset(dataset='taiji', verbose=False, subject_index=3):

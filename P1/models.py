@@ -37,6 +37,7 @@ class ML():
         x = PolynomialFeatures(degree = self.degree).fit_transform(x.reshape(-1,1))
         intermediate = (x.T)@x
         weights = np.linalg.solve(intermediate, (x.T)@y)
+        # weights = np.linalg.pinv(intermediate, (x.T)@y)
         return weights
 
     def predict(self, x, weights):
