@@ -1,9 +1,9 @@
-
 \documentclass[12pt,twoside,a4paper]{article} 
 
 \usepackage{color,amssymb,amsmath,mathtools} 
 \usepackage{fullpage,caption, listings,clrscode,placeins}
 \usepackage{amsmath,bm}
+\usepackage{subfig}
  
  % Metadata info
 \newcommand{\mytitle}{Project 1} 
@@ -84,7 +84,9 @@
 \maketitle
 
 \begin{abstract}
-ABSTRACT
+
+In this day and age, automation is crucial in various industries which involve laborious and repetitive tasks. This project covers regression and classification problems, which are considered to be one of basic techniques of \textit{Pattern Recognition}. I've implemented linear models for regression, along with methods to optimize the parameters/weights of these models through the use of \textit{Maximum Likelihood Estimation} and \textit{Maximum A Posteriori Estimation}. Additonally, for classification models I've implemented the Fisher projection algorithm for the \textit{Taiji} dataset. I've also introduced the key aspects of the \textit{Central Limit Theorem}, in addition to answering few questions regarding estimating probability distributions.
+
 \end{abstract}
 \vspace{1ex}
 
@@ -96,13 +98,16 @@ ABSTRACT
 % SECTIONS
 
 \section{Linear Regression}
-Supervised learning problems with the training data comprising of input vectors along with their corresponding target vectors, and the desired output consisting of one or more continuous variables is called \textbf{Regression}\cite{ChrisPRML}. Bishop\cite{ChrisPRML} mentions about the use of polynomial curve fitting as an example to illustrate the usage and role of linear regression in real-world problems.\\
+
+Supervised learning problems with the training data comprising of input vectors along with their corresponding target vectors, and the desired output consisting of one or more continuous variables is called \textit{Regression}. Bishop\cite{ChrisPRML} mentions about the use of polynomial curve fitting as an example to illustrate the usage and role of linear regression in real-world problems.\\
 In polynomial curve fitting, we are given a training set (of $N$ examples) of $\textbf{x}$, where $\textbf{x} \equiv (x_1,...,x_N)^T$ and their corresponding target values $\textbf{t} \equiv (t_1,...,t_N)^T$.\\
-Primarily, the objective of polynomial curve fitting is to find relevant parameters(represented by polynomial coefficients) $w_0, w_1, ... w_M$ that fit a polynomial function of degree $M$ represented as \ref{POLY}(Equation 1.1 \cite{ChrisPRML}),
+Primarily, the objective of polynomial curve fitting is to find relevant parameters(represented by polynomial coefficients) $w_0, w_1, ... w_M$ that fit a polynomial function of degree $M$ represented as \ref{POLY},
+
 \begin{equation}\label{POLY}
     y(x, \textbf{w}) = w_0 + w_1x + w2+w^2 + ... + w_Mx^M = \sum_{j=0}^{M}w_jx^j
 \end{equation}
-To arrive to our objective, we have to parameters that satisfy the minimization of an \textit{error function}, that measures the magnitude of misfit between our targets and predictions. A suitable criteria for optimizing the model parameters is to minimize the squared sum between the targets and predicted values, mentioned in \ref{ERRML1}.
+To arrive to our objective, we have to parameters that satisfy the minimization of an \textit{error function}, that measures the magnitude of misfit between our targets and predictions. \\ 
+A suitable criteria for optimizing the model parameters is to minimize the squared sum between the targets and predicted values, mentioned in \ref{ERRML1}.
 \begin{equation}\label{ERRML1}
     E(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}\{y(x^n, \textbf{w})-t_n\}^2
 \end{equation}
@@ -113,42 +118,40 @@ The two most popular approaches to solve the error function and estimate the mod
 \end{enumerate}
 %-------------------------------------------------------------------------
 \subsection{Maximum Likelihood Estimator}
+In Maximum Likelihood Estimation, the main assumption is that the ground truth values (represented by $t_i$) follow a Gaussian distribution. The assumed distribution is spread over with mean value represented by the model prediction values, and the variance matrix (for multivariate datasets) as shown in \eqref{1.60}.
 
 \begin{equation}\label{1.60}
     p(t|x,\textbf{w}, \beta) = \mathcal{N}(t|y(x,\textbf(w)),\beta^{-1})
 \end{equation}
-
+However, for a multivariate Gaussian distribution if we apply the i.i.d criterion which states that each example sampled from the dataset is independent and identically distributed we can write the joint conditional probability distribution in the product-form as \eqref{1.61}
 \begin{equation}\label{1.61}
     p(t|x,\textbf{w}, \beta) = \prod_{n=1}^{N}\mathcal{N}(t|y(x,\textbf(w)),\beta^{-1})
 \end{equation}
-
+We also know that the standard Gaussian distribution is represented by \eqref{1.46},
 \begin{equation} \label{1.46}
     \mathcal{N}(x|\mu,\sigma^2) = \frac{1}{(2\pi\sigma^2)^{1/2}}\exp\{-\frac{1}{2\sigma^2}(x-\mu)^2\}
 \end{equation}
-
+Now taking the equation \eqref{1.61}, applying the general equation \eqref{1.46} and taking the natural-logarithm across both the sides, we get,
 \begin{align} \label{1.62}
 \ln p(t|x,\textbf{w}, \beta) =& \sum_{n=1}^{N} \ln \{ \mathcal{N}(t_n|y(x_n,\textbf{w}),\beta^{-1}) \} \\
 =& \sum_{n=1}^{N} \ln \{ \frac{1}{(2\pi\beta^{-1})^{1/2}}\exp\{-\frac{1}{2\beta^{-1}}\{t_n-y(x_n,\textbf{w})\}^2\}\} \\
 =&\sum_{n=1}^{N} \ln \{ \frac{1}{(2\pi\beta^{-1})^{1/2}} \} + \sum_{n=1}^{N} \ln \{\exp\{-\frac{1}{2\beta^{-1}}\{t_n-y(x_n,\textbf{w})\}^2\}\} \\
 =& N\ln \{ \frac{\beta}{(2\pi)} \}^{1/2} + \sum_{n=1}^{N} {-\frac{\beta}{2}\{y(x_n,\textbf{w})-t_n\}^2} \\
-\ln p(t|x,\textbf{w}, \beta) =& -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi)
+\ln p(t|x,\textbf{w}, \beta) =& -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi) \label{LOGLL}
 \end{align}
-
+From statistics, we know that \eqref{LOGLL} is represented as log-likelihood and the first term on the right-hand-side, $-\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2}$ resembles the \textit{\textbf{sum of the squared error}}. Hence, maximizing the log-likelihood function is equivalent to minimizing the negative log-likelihood function. \\
+Taking negative on both sides, we get the equation of negative log-likelihood which is used to 
 \begin{equation} \label{NLL}
     -\ln p(t|x,\textbf{w}, \beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi)
 \end{equation}
-
-\begin{equation} \label{MLPRED}
-    y = \textbf{w}^T\phi(x_n)
-\end{equation}
-
+We can represent the error function of \textit{Maximum Likelihood Estimator} by \eqref{ERRML2}
 \begin{equation}\label{ERRML2}
-    E_D(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2
+    E_{ML}(\textbf{w}) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi)
 \end{equation}
-
+One of the fundamental operation to find critical points of a function with respect to a specific parameter is to equate the partial derivative of the function to zero and solving for the parameter. Applying that strategy to equation \eqref{ERRML2} with respect to \textbf{w} we get,
 \begin{align}
-\frac{\partial E_D(\textbf{w})}{\partial \textbf{w*}} =& 0\\
-\frac{\partial}{\partial \textbf{w*}} \{\frac{1}{2}\sum_{n=1}^{N}\{y(x^n, \textbf{w})-t_n\}^2\} =& 0 \\
+\frac{\partial E_{ML}(\textbf{w})}{\partial \textbf{w}} =& 0\\
+\frac{\partial}{\partial \textbf{w*}} \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi) \right ) =& 0 \\
 \frac{1}{2}.2.\sum_{n=1}^{N}\frac{\partial y_n}{\partial \textbf{w}_i}(y_n-t_n) =& 0 \\
 \sum_{n=1}^{N}\frac{\partial y_n}{\partial \textbf{w}_i}(\sum_{j=0}^{M}{w_jx^j_n}-t_n) =& 0 \\
 \sum_{n=1}^{N}x_n^i(\sum_{j=0}^{M}{w_jx^j_n}-t_n) =& 0 \\
@@ -156,20 +159,26 @@ The two most popular approaches to solve the error function and estimate the mod
 \sum_{n=1}^{N}\sum_{j=0}^{M}{x_n^iw_jx^j_n} - \sum_{n=1}^{N}x_n^it_n =& 0 \\
 \sum_{n=1}^{N}\sum_{j=0}^{M}{x^{i+j}_nw_j} - \sum_{n=1}^{N}x_n^it_n =& 0 \label{MLDERSUM}
 \end{align}
-
+Converting the result from the summation-scalar format present in \eqref{MLDERSUM} to matrix-format we get,
 \begin{align}
-\textbf{X}^T\textbf{X}\textbf{w*} - \textbf{X}^Tt =& 0 \\
-\textbf{X}^T\textbf{X}\textbf{w*} =& \textbf{X}^Tt \\
-\textbf{w*} =& (\textbf{X}^T\textbf{X})^{-1}\textbf{X}^Tt \label{WMLFINAL}
+\textbf{X}^T\textbf{X}\textbf{w}_{ML} - \textbf{X}^Tt =& 0 \\
+\textbf{X}^T\textbf{X}\textbf{w*}_{ML} =& \textbf{X}^Tt \\
+\textbf{w}_{ML} =& (\textbf{X}^T\textbf{X})^{-1}\textbf{X}^Tt \label{WMLFINAL}
 \end{align}
-
- OR THIS:
+Where, \eqref{WMLFINAL} represents the optimal weights for the polynomial with respect to minimizing the negative log-likelihood.\\
+We can find the predictions of the model function by applying,
+\begin{equation} \label{MLPRED}
+    \textbf{y} = \textbf{w}^T_{ML}\textbf{X}
+\end{equation}
+\subsubsection*{Design Matrix Input}
+However, in real-life situations the input is in the form of multiple dimensions and is a function of the input vector either through pre-processing steps or through the use of higher dimensional polynomial for the model fit. In that case we can consider the design matrix in the form of $\phi(x_n)$ and modify our objective function as,
  \begin{equation}
-     \triangledown\ln p(t|w,\beta) = \sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2
+     \triangledown\ln p(t|w,\beta) = \triangledown \left( \sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2 \right)
  \end{equation}
+Applying partial derivative with respect to \textbf{w} and solving for \textbf{w*} we get
 
 \begin{align}
-\frac{\partial E_D(\textbf{w})}{\partial \textbf{w*}} =& 0\\
+\frac{\partial E_ML(\textbf{w})}{\partial \textbf{w*}} =& 0\\
 \frac{\partial}{\partial \textbf{w*}} \{ \frac{1}{2}\sum_{n=1}^{N}\{t_n - \textbf{w}^T\phi(x_n)\}^2 \} =& 0 \\
 \sum_{n=1}^{N}t_n\phi(x_n)^T - \textbf{w}^T\left(\sum_{n=1}^{N}{\phi(x_n)\phi(x_n)^T} \right) =& 0 \\
 \textbf{w}^T\left(\sum_{n=1}^{N}{\phi(x_n)\phi(x_n)^T} \right) =& \sum_{n=1}^{N}t_n\phi(x_n)^T \\
@@ -177,33 +186,113 @@ The two most popular approaches to solve the error function and estimate the mod
 \textbf{w}^T =& (\Phi\Phi^T)^{-1}\textbf{t}\Phi^T \\
 \textbf{w}_{ML} =& (\Phi^T\Phi)^{-1}\Phi^T\textbf{t} \label{WML}
 \end{align}
-
+Hence we can find the predictions of the model function by applying,
+\begin{equation} \label{MLPRED2}
+    y = \textbf{w}^T\phi(x_n)
+\end{equation}
+Similarly, we can find the optimal value of the parameter $\beta$ by \eqref{BETAML},
 \begin{equation} \label{BETAML}
     \beta_{ML}^{-1} = \frac{1}{N}\sum_{n=1}^{N}\{t_n - \textbf{w}_{ML}^T\phi(x_n)\}^2
 \end{equation}
-
+Hence, the distribution represented by the Gaussian distribution assumption gets converted through the use of optimal values as,
 \begin{equation} \label{PREDDML}
     p(t|x,\textbf{w}_{ML},\beta_{ML}) = \mathcal{N}(y(x,\textbf{w}_{ML}), \beta^{-1}_{ML})
 \end{equation}
 
 %-------------------------------------------------------------------------
 \subsection{Maximum A Posteriori Estimator}
-
+Unlike \textit{Maximum Likelihood Estimation} where the posterior distribution on the ground truth was assumed to be from a Gaussian distribution, Maximum A Posteriori Estimator introduces a prior distribution on the weight vector \textbf{w}. That could be written mathematically as in \eqref{LN1}. Using the general Gaussian distribution equation and applying natural logarithm to \eqref{LNFINAL}.
 \begin{align} 
-p(\textbf{w}|\alpha) =& \mathcal{N}(\textbf(w)|0,\alpha^{-1}\textbf{I}) \\
+p(\textbf{w}|\alpha) =& \mathcal{N}(\textbf(w)|0,\alpha^{-1}\textbf{I}) \label{LN1}\\
 =& \frac{1}{(2\pi\alpha^{-1})^{1/2}}\exp\{-\frac{1}{2\alpha^{-1}}(\textbf{w}-0)^2\} \\
-p(\textbf{w}|\alpha) =& \left( \frac{\alpha}{2\pi}\right)^{(M+1)/2} \exp\left\{ -\frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}
+p(\textbf{w}|\alpha) =& \left( \frac{\alpha}{2\pi}\right)^{(M+1)/2} \exp\left\{ -\frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} \\
+\ln p(\textbf{w}|\alpha) =& \frac{(M+1)}{2}.\ln\left( \frac{\alpha}{2\pi}\right) - \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} \label{LNFINAL}
+\end{align}
+From probability theory we know that,
+\begin{align}
+Posterior \propto& \ Likelihood * Prior\\
+    p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \propto& p(\textbf{t}|\textbf{x},\textbf{w},\beta) p(\textbf{w}|\alpha) \\
+    \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \propto& \ln p(\textbf{t}|\textbf{x},\textbf{w},\beta) + \ln p(\textbf{w}|\alpha) \\
+    \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) =& \ln p(\textbf{t}|\textbf{x},\textbf{w},\beta) + \ln p(\textbf{w}|\alpha) + constant \label{PLP}
+\end{align}
+Substituting the equations \eqref{LOGLL} and \eqref{LNFINAL} in \eqref{PLP} we get,
+
+\begin{multline}
+        \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) = {\left( -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi) \right )} \\ + \left ( \frac{(M+1)}{2}.\ln\left( \frac{\alpha}{2\pi}\right) - \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} \right ) + constant
+\end{multline}
+
+\begin{multline}
+        \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) = -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi) \\ + \frac{(M+1)}{2}.\ln\left( \frac{\alpha}{2\pi}\right) - \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} + constant
+\end{multline}
+
+\begin{multline} \label{NLLMAP}
+       - \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi) \\ - \frac{(M+1)}{2}.\ln\left( \frac{\alpha}{2\pi}\right) + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} + constant
+\end{multline}
+
+Ignoring the constants (for simplicity as they would be equate to zero on taking the partial derivative with respect to \textbf{w}) from \eqref{NLLMAP} we can find the maximum of the posterior by minimizing the following equation,
+\begin{equation}
+     - \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} 
+\end{equation}
+
+\begin{align}
+    \triangledown \left(- \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \right ) =& 0 \\
+    \triangledown \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}  \right ) =& 0 \\
+    \triangledown \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{ \textbf{w}^T\textbf{X}-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}  \right ) =& 0 \\
+ \textbf{w} =& \left(\textbf{X}^T\textbf{X} + \frac{\alpha}{\beta}\textbf{I}\right)^{-1}\textbf{X}^T\textbf{t} \\
+ \textbf{w}_{MAP} =& \left(\textbf{X}^T\textbf{X} + \lambda\textbf{I}\right)^{-1}\textbf{X}^T\textbf{t}
 \end{align}
 
-\begin{equation}
-    p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \propto p(\textbf{t}|\textbf{x},\textbf{w},\beta) p(\textbf{w}|\alpha)
-\end{equation}
+We can observe that, this optimization criterion is equivalent to minimizing the regularized sum-of-squares error, with the parameter $\lambda = \alpha/\beta$.
 
 %-------------------------------------------------------------------------
 \subsection{Report}
-Given training dataset consisted of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
+\subsubsection{Dataset}
+Given dataset consists of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/gt_data.png}
+    \caption{Given training dataset \textit{data.npz}. Consists of ($x$), ($y$), ($t$) and($sigma$) values.}
+    \label{fig: DATASET}
+\end{figure}
 %-------------------------------------------------------------------------
+
+\pagebreak
 \subsubsection{Visualization}
+
+\subsubsection*{Maximum Likelihood Estimation}
+
+\begin{figure}[!htb]
+    \centering
+    \subfloat[Model Degree: $0$]{
+      \includegraphics[width=0.55\linewidth]{results/50_ml_0.png}}
+    \subfloat[Model Degree: $1$]{
+      \includegraphics[width=0.55\linewidth]{results/50_ml_1.png}}
+    \hspace{0mm}
+    \subfloat[Model Degree: $3$]{
+      \includegraphics[width=0.55\linewidth]{results/50_ml_3.png}}
+    \subfloat[Model Degree: $9$]{
+      \includegraphics[width=0.55\linewidth]{results/50_ml_9.png}}
+    \hspace{0mm}
+    \caption{Maximum Likelihood Estimation Model Prediction Visualization}
+\end{figure}
+
+\pagebreak
+\subsubsection*{Maximum A Posteriori Estimation}
+
+\begin{figure}[!htb]
+    \centering
+    \subfloat[Model Degree: $0$]{
+      \includegraphics[width=0.55\linewidth]{results/50_map_0.png}}
+    \subfloat[Model Degree: $1$]{
+      \includegraphics[width=0.55\linewidth]{results/50_map_1.png}}
+    \hspace{0mm}
+    \subfloat[Model Degree: $3$]{
+      \includegraphics[width=0.55\linewidth]{results/50_map_3.png}}
+    \subfloat[Model Degree: $9$]{
+      \includegraphics[width=0.55\linewidth]{results/50_map_9.png}}
+    \hspace{0mm}
+    \caption{Maximum A Posteriori Estimation Model Prediction Visualization}
+\end{figure}
 
 %-------------------------------------------------------------------------
 \subsubsection{Comparison}
@@ -212,13 +301,56 @@ Given training dataset consisted of input values($x$), ground truth values($y$),
 \subsubsection{Summary}
 
 %-------------------------------------------------------------------------
+\pagebreak
 \subsection{Extra Credit}
-Here are my solutions for the extra credit problems.
+\subsubsection*{Here are my solutions for the extra credit problems.}
+
 %-------------------------------------------------------------------------
 \subsubsection{Additional Lambda Values}
 
 %-------------------------------------------------------------------------
 \subsubsection{Varying Degree of Polynomial Order}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{Weights}              & \textbf{M = 0} & \textbf{M = 1} & \textbf{M = 3} & \textbf{M = 6} & \textbf{M = 9} \\\hline
+\textit{\textbf{$w_0^{ML}$}} & 0.009549       & 1.204800       & -0.185197      & -0.713196      & -1.367908      \\\hline
+\textit{\textbf{$w_1^{ML}$}}  & -              & -0.176208      & 0.958219       & 1.860958       & 4.790468       \\\hline
+\textit{\textbf{$w_2^{ML}$}} & - & - & -0.221176 & -0.794732 & -4.971345 \\\hline
+\textit{\textbf{$w_3^{ML}$}} & - & - & 0.011743  & 0.184684  & 2.956968  \\\hline
+\textit{\textbf{$w_4^{ML}$}} & - & - & -         & -0.026116 & -1.027571 \\\hline
+\textit{\textbf{$w_5^{ML}$}} & - & - & -         & 0.001895  & 0.214036  \\\hline
+\textit{\textbf{$w_6^{ML}$}} & - & - & -         & -0.000052 & -0.027113 \\\hline
+\textit{\textbf{$w_7^{ML}$}} & - & - & -         & -         & 0.002043  \\\hline
+\textit{\textbf{$w_8^{ML}$}} & - & - & -         & -         & -0.000084 \\\hline
+\textit{\textbf{$w_9^{ML}$}} & - & - & -         & -         & 0.000001 \\\hline
+\end{tabular}
+\caption{Weights of the Maximum Likelihood model with varying degrees.}
+\label{MLWEIGHTS}
+\end{table}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Weights}              & \textbf{M = 0} & \textbf{M = 1} & \textbf{M = 3} & \textbf{M = 6} & \textbf{M = 9} \\ \hline
+\textit{\textbf{$w_0^{MAP}$}} & 0.009549       & 1.204745       & -0.184890      & -0.674439      & 0.263706       \\ \hline
+\textit{\textbf{$w_1^{MAP}$}} & -              & -0.176201      & 0.958032       & 1.803124       & 0.875506       \\ \hline
+\textit{\textbf{$w_2^{MAP}$}} & - & - & -0.221146 & -0.764588 & -1.278764 \\ \hline
+\textit{\textbf{$w_3^{MAP}$}} & - & - & 0.011742  & 0.177347  & 1.131148  \\ \hline
+\textit{\textbf{$w_4^{MAP}$}} & - & - & -         & -0.025209 & -0.497739 \\ \hline
+\textit{\textbf{$w_5^{MAP}$}} & - & - & -         & 0.001839  & 0.119170  \\ \hline
+\textit{\textbf{$w_6^{MAP}$}} & - & - & -         & -0.000051 & -0.016513 \\ \hline
+\textit{\textbf{$w_7^{MAP}$}} & - & - & -         & -         & 0.001324  \\ \hline
+\textit{\textbf{$w_8^{MAP}$}} & - & - & -         & -         & -0.000057 \\ \hline
+\textit{\textbf{$w_9^{MAP}$}} & - & - & -         & -         & 0.000001  \\ \hline
+\end{tabular}
+\caption{Weights of the Maximum A Posteriori model with varying degrees.}
+\label{MAPWEIGHTS}
+\end{table}
+
 
 %-------------------------------------------------------------------------
 \subsubsection{Varying Number of Sample Points}
@@ -229,9 +361,47 @@ Here are my solutions for the extra credit problems.
 %-------------------------------------------------------------------------
 \pagebreak
 \section{Classification}
-
+Unlike regression problems, the objective of classification models is to assign input vector $\textbf{x}$ to one of \textit{K} discrete classes where $k = 1,...,K$. The \textit{decision regions} or \textit{decision boundaries} therefore represent the division of the input space, which are used to classify each input into disjoint classes.\\
+\textit{Fisher Linear Discriminant Analysis} is considered to be a part of the family of linear models used for classification, where the decision boundaries are linear functions of the provided input vector $\textbf{x}$.
 %-------------------------------------------------------------------------
 \subsection{Fisher Projection}
+In \textit{Fisher Linear Discriminant}, the model tries to reduce the dimension of the
+\begin{equation}
+    \textbf{y} = \textbf{W}^T\textbf{x}
+\end{equation}
+
+\begin{equation}
+    \textbf{S}_W = \sum_{k=1}^K\textbf{S}_k
+\end{equation}
+where the term $\textbf{S}_k$ is represented by,
+\begin{equation}
+    \textbf{S}_k = \sum_{n\in\textit{C}_k}(x_n - \textbf{m}_k)(x_n - \textbf{m}_k)^T
+\end{equation}
+
+\begin{equation}
+    \textbf{m}_1 = \frac{1}{N_1}\sum_{n\in\textit{C}_1}x_n,\qquad \textbf{m}_2 = \frac{1}{N_2}\sum_{n\in\textit{C}_2}x_n
+\end{equation}
+
+\begin{equation}
+    \textbf{m}_k = \frac{1}{N_k}\sum_{n\in\textit{C}_k}\textbf{x}_n
+\end{equation}
+
+\begin{equation}
+    \textbf{S}_T = \sum_{n=1}^N(\textbf{x}_n - \textbf{m})(\textbf{x}_n - \textbf{m})^T
+\end{equation}
+
+\begin{equation}
+    \textbf{S}_B = \sum_{n=1}^N N_K(\textbf{m}_k - \textbf{m})(\textbf{m}_k - \textbf{m})^T
+\end{equation}
+
+\begin{equation}
+    \textbf{m} = \frac{1}{N}\sum_{k=1}^K N_k\textbf{m}_k
+\end{equation}
+
+\begin{align}
+    J(\textbf{W}) =& Tr\left\{ s_W^{-1}s_B \right \} \\
+    J(\textbf{W}) =& Tr\left( (\textbf{W}\textbf{S}_W\textbf{W}^T)^{-1} (\textbf{W}\textbf{S}_B\textbf{W}^T) \right )
+\end{align}
 
 %-------------------------------------------------------------------------
 \subsection{Report}
@@ -249,12 +419,34 @@ Here are my solutions for the extra credit problems.
 \subsubsection{Conclusion}
 
 %-------------------------------------------------------------------------
+\subsection{Extra Credit}
+
+%-------------------------------------------------------------------------
 \pagebreak
 \section{Central Limit Theorem}
 
 %-------------------------------------------------------------------------
 \subsection{Introduction}
+According to Fischer \cite{CLT}, classical central limit theorem states that for a large enough sample size the population distribution can be assumed to be Gaussian. However, its essential to note that the sequence of random variables forming the population must be drawn from a distribution with finite mean and variance and must follow the i.i.d. criterion.
 
+Let us consider an unknown distribution with $n$ independent, identically distributed random variables $X_1, X_2, ..., X_n$, where is $n$ is very large with mean, $\mu$ and variance, $\sigma^2$. \\
+
+Hence, we can find the mean, $\mu_N$ and variance, $\sigma^2_N$ as,
+\begin{align}
+\mu_N =& \frac{1}{n}(X_1+X_2+...+X_n) \\
+      =& \frac{1}{n}(n*\mu) \\
+\mu_N =& \mu
+\end{align}
+
+\begin{align}
+\sigma^2_N =& Var\left( \frac{1}{n}(X_1+X_2+...+X_n) \right ) \\
+           =& \left( \frac{1}{n} \right )^2 \left(Var(X_1)+Var(X_2)+...+Var(X_n) \right ) \\
+           =& \left( \frac{1}{n} \right )^2 \left(\sigma^2+\sigma^2+...+\sigma^2 \right ) \\
+           =& \left( \frac{1}{n} \right )^2(n\sigma^2) \\
+\sigma^2_N =& \frac{\sigma^2}{n}
+\end{align}
+
+Hence, the approximate Gaussian distribution is formed with a mean, $\mu_N$ and variance, $\sigma^2_N$.
 %-------------------------------------------------------------------------
 \subsection{Question 1}
 

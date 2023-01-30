@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.neighbors import KNeighborsClassifier
 
 # TODO: import your implemented model here or use one of sklearn's classifiers 
 # from models import Classifier
@@ -161,6 +162,7 @@ def plot_conf_mats(dataset, **kwargs):
     ax.set_title('Testing Confusion Matrix')
     plt.tight_layout()
     plt.savefig(f'results/{dataset}_test_confusion.png', bbox_inches='tight', pad_inches=0)
+    plt.show()
 
 def example_decision_boundary(dataset='taiji', indices=[0, 6]):
     """
@@ -197,17 +199,84 @@ def example_classification(dataset='taiji'):
 
 # TODO: Implement your Fisher projection
 def fisher_projection(train_feats, train_labels):
-    raise NotImplementedError
+    unique_train_labels = np.unique(train_labels)
+    mus = []
+
+    for l in unique_train_labels:
+        now_train_feats = train_feats[train_labels == l]
+        now_train_feats_mu = np.mean(now_train_feats, axis=0)
+        mus.append(now_train_feats_mu)
+
+    global_mu = np.mean(train_feats, axis=0)
+
+    S_b = np.zeros((train_feats.shape[1], train_feats.shape[1]))
+    for i, mu in enumerate(mus):
+        line_num = train_feats[train_labels == i].shape[0]
+        mu_i = mu - global_mu
+        mu_i = mu_i.reshape(-1, 1)
+        S_b += line_num * np.dot(mu_i, mu_i.T)
+
+    # 计算S矩阵
+    S_w_class = []
+    for i, mu in enumerate(mus):
+        S_i = np.zeros((train_feats.shape[1], train_feats.shape[1]))
+        for line in train_feats[train_labels == i]:
+            tmp = (line - mu)
+            tmp = tmp.reshape(-1, 1)  # 转成列向量
+            S_i += tmp @ tmp.T
+        S_w_class.append(S_i)  # 列为64 行为所有的feature
+
+    S_w = np.zeros((train_feats.shape[1], train_feats.shape[1]))
+
+    for s in S_w_class:
+        S_w += s
+
+    eig_vals, eig_vecs = np.linalg.eig(np.linalg.inv(S_w) @ S_b)
+
+    ind = eig_vals.argsort()[::-1]
+    # eig_vals = eig_vals[ind]
+    eig_vecs = eig_vecs[:, ind]
+    eig_vecs = eig_vecs[:, :6]
+    return eig_vecs
 
 # TODO: Use the exisintg functions load_dataset and plot_conf_mats. Using a classifier (either one you write
 # or an imported sklearn function), perform classification on the fisher projected data.
-def classification(dataset='taiji'):
-    raise NotImplementedError
+def classification(dataset = "taiji"):
+
+    train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset)
+
+    eigen_vectors = fisher_projection(train_feats, train_labels)
+
+    proj_train_feats = np.real(train_feats @ eigen_vectors)
+
+    proj_test_feats = np.real(test_feats @ eigen_vectors)
+
+    clf = LinearDiscriminantAnalysis()
+
+    # clf = KNeighborsClassifier(n_neighbors = n_neighbors)
+
+    clf.fit(proj_train_feats, train_labels)
+
+    pred_train_labels = clf.predict(proj_train_feats)
+    pred_test_labels = clf.predict(proj_test_feats)
+
+    plot_conf_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
+
+def dec_bound(dataset='taiji', indices=[0, 6]):
+    train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset)
+    eigen_vectors = fisher_projection(train_feats, train_labels)
+    dc_train_feats = train_feats[:, indices]
+    # dc_train_feats = np.real(train_feats @ eigen_vectors)#[:, indices]
+    dc_test_feats = test_feats[:, indices]
+    # dc_test_feats = np.real(test_feats @ eigen_vectors)#[:, indices]
+    clf = LinearDiscriminantAnalysis()
+    clf.fit(dc_train_feats, train_labels)
+    viz_desc_bounds(clf, dc_test_feats, test_labels, indices[0], indices[1])
 
 def main():
     example_decision_boundary()
-
-
+    classification()
+    dec_bound()
+    
 if __name__ == '__main__':
     main()
-

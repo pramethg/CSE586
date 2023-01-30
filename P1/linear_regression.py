@@ -52,8 +52,8 @@ def plot_with_shadded_bar(x=None, y=None, sigma=None, num_points = 50):
         y: y values
         sigma: standard deviation
     """
-    if not os.path.exists(f'results{num_points}'):
-        os.makedirs(f'results{num_points}')
+    if not os.path.exists('results'):
+        os.makedirs('results')
 
     # Example plotting with the GT data, you can use this as a reference. You will later 
     # use this function to plot the results of your model.
@@ -77,7 +77,7 @@ def plot_with_shadded_bar(x=None, y=None, sigma=None, num_points = 50):
     ax.set_ylabel('t')
     ax.set_title('Data Point Plot Example')
 
-    plt.savefig(f'results{num_points}/gt_data.png')
+    plt.savefig('results/gt_data.png')
     plt.close(fig)
 
 def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pred2 = None, label2 = None, title = None, file_name = None, num_points = 50):
@@ -88,8 +88,8 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
         y: y values
         pred: prediction values
     """
-    if not os.path.exists(f'results{num_points}'):
-        os.makedirs(f'results{num_points}')
+    if not os.path.exists('results'):
+        os.makedirs('results')
 
     np.load(f'data{num_points}.npz')
     x = np.load(f'data{num_points}.npz')['x']
@@ -99,7 +99,7 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
 
     # Noise distribution for plotting the results.
     nmu = 0
-    sigma = 0.5
+    sigma = 0.3
     noise = nmu + sigma * np.random.randn(num_points)
 
     # Plot the ground truth curve of the generated data.
@@ -123,7 +123,7 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
     ax.set_ylabel('Y Values, Predictions, Noisy Data')
     ax.set_title(title)
     plt.legend()
-    plt.savefig(f'results{num_points}/{file_name}.png')
+    plt.savefig(f'results/{file_name}.png')
     # plt.show()
     plt.close(fig)
 
@@ -138,7 +138,6 @@ def pad_weights(weights):
 # TODO: Use the existing functions to create/load data as needed. You will now call your linear regression model
 # to fit the data and plot the results.
 def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
-    # Load the data
     np.load(f'data{num_points}.npz')
     x = np.load(f'data{num_points}.npz')['x']
     y = np.load(f'data{num_points}.npz')['y']
@@ -152,7 +151,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         ml_weights = ML_Model.fit(x, t)
         ml_predictions = ML_Model.predict(x, ml_weights)
         ml_weights_dict[f"ML:{i}"] = pad_weights(ml_weights)
-        plot_results(x, y, ml_predictions, title = f"ML Model Degree {i}", file_name = f"ml_{i}", label1 = "ML Model Prediction", num_points = num_points)
+        plot_results(x, y, ml_predictions, title = f"ML Model Degree {i}", file_name = f"{num_points}_ml_{i}", label1 = "ML Model Prediction", num_points = num_points)
     print(f"Number of Points: {num_points}")
     print(pd.DataFrame(ml_weights_dict))
 
@@ -161,7 +160,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         map_weights = MAP_Model.fit(x, t)
         map_predictions = MAP_Model.predict(x, map_weights)
         map_weights_dict[f"MAP:{i}"] = pad_weights(map_weights)
-        plot_results(x, y, map_predictions, title = f"MAP Model Degree {i}", file_name = f"map_{i}", label1 = "MAP Model Prediction", num_points = num_points)
+        plot_results(x, y, map_predictions, title = f"MAP Model Degree {i}", file_name = f"{num_points}_map_{i}", label1 = "MAP Model Prediction", num_points = num_points)
     print(f"Number of Points: {num_points}")    
     print(pd.DataFrame(map_weights_dict))
 
@@ -175,9 +174,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         plot_results(x, y, pred1 = ml_predictions, label1 = f"ML Model Degree: {i}", \
                         title = f"ML vs MAP Predictions Degree: {i}", \
                         pred2 = map_predictions, label2 = f"MAP Model Degree: {i}", \
-                        file_name = f"ml_vs_map{i}", num_points = num_points)
-
-
+                        file_name = f"{num_points}_ml_vs_map{i}", num_points = num_points)
     if calcRMSE:
         rmse_arr = []
         for lnlambda in range(-40, -20):
@@ -192,22 +189,21 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         # plt.ylim([0, 1])
         plt.xlabel(r"ln$\lambda$")
         plt.ylabel(r"$E_{RMS}$")
-        plt.legend
-        plt.savefig("results50/rmse-lnlambda.png")
+        plt.legend()
+        plt.savefig("results/rmse-lnlambda.png")
         # plt.show()
 
     for lnlambda in [-18, -15, -13]:
         CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
         custom_weights = CustomModel.fit(x, t)
         custom_predictions = CustomModel.predict(x, custom_weights)
-        plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = f"lnlambda{lnlambda}", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model", num_points = num_points)
+        plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = f"{num_points}_lnlambda{lnlambda}", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model", num_points = num_points)
 
 def main():
-    for num_points in [20,50,500]:
+    for num_points in [50, 20]:
         generateNoisyData(num_points = num_points)
-        plot_with_shadded_bar(num_points = num_points)
         linear_regression(num_points = num_points, calcRMSE = True)
-
+        plot_with_shadded_bar()
 
 if __name__ == '__main__':
     main()
