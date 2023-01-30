@@ -9,19 +9,41 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you're written does).
+    Description: 
+                generateNoisyData(): Takes in the number of points as input and saves the generated points as a .npz file.
+                    CHANGES: Changed the format of the datafile name that takes in the number of points as a parameter while saving the file
+                    e.g.: data50.npz: 50 data points, data200.npz: 200 datapoints.
+
+                plot_with_shadded_bar(): Plots the results and saves in .png format.
+
+                plot_results(): Plots the results of the model predictions.
+                    Parameters:
+                    x (np.array): Input Data,
+                    y (np.array): Ground Truth Data,
+                    pred1 (np.array): 1st model prediction 
+                    label1 (str): Label of 1st model prediction 
+                    pred1 (np.array): 2nd model prediction 
+                    label2 (str): Label of 2nd model prediction
+                    title (str): Title of the plot
+                    file_name (str): Filename for the saved plot
+                    num_points (int): Number of points used for the experiment
+                
+                rmse(): Calculates the root-mean-squared error.
+
+                zero_pad_weights(): For printing the comparision table for various model degrees through a Pandas DataFrame.
+                This function just converts all the model degree weights to match equal dimensions with zeroes.
+
+                linear_regression(): Main linear regression function corresponding to all the experiments.             
+
 }
 '''
 
-
-import math
 import os
-
-import matplotlib.pyplot as plt
+import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from matplotlib import collections as mc
-# TODO: import your models
 from models import ML, MAP
 
 def generateNoisyData(num_points=50):
@@ -42,8 +64,6 @@ def generateNoisyData(num_points=50):
     # Save the data
     np.savez(f'data{num_points}.npz', x=x, y=y, t=t, sigma=sigma)
 
-# Feel free to change aspects of this function to suit your needs.
-# Such as the title, labels, colors, etc.
 def plot_with_shadded_bar(x=None, y=None, sigma=None, num_points = 50):
     """
     Plots the GT data for visualization.
@@ -80,46 +100,60 @@ def plot_with_shadded_bar(x=None, y=None, sigma=None, num_points = 50):
     plt.savefig('results/gt_data.png')
     plt.close(fig)
 
-def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pred2 = None, label2 = None, title = None, file_name = None, num_points = 50):
+def plot_results(x=None, y=None, pred1 = None, label1 = None, pred2 = None, label2 = None, title = None, file_name = None, num_points = 50):
     """
     Plots the GT data for visualization.
     Args:
-        x: x values
-        y: y values
-        pred: prediction values
+        x (np.array): Input Data,
+        y (np.array): Ground Truth Data,
+        pred1 (np.array): 1st model prediction 
+        label1 (str): Label of 1st model prediction 
+        pred1 (np.array): 2nd model prediction 
+        label2 (str): Label of 2nd model prediction
+        title (str): Title of the plot
+        file_name (str): Filename for the saved plot
+        num_points (int): Number of points used for the experiment
     """
     if not os.path.exists('results'):
         os.makedirs('results')
 
+    # Loads the dataset from the saved data files. The file has been changes to suffice changes in number of points.
     np.load(f'data{num_points}.npz')
     x = np.load(f'data{num_points}.npz')['x']
     y = np.load(f'data{num_points}.npz')['y']
     t = np.load(f'data{num_points}.npz')['t']
     sigma = np.load(f'data{num_points}.npz')['sigma']
 
-    # Noise distribution for plotting the results.
-    nmu = 0
+    # Used for plotting the results.
     sigma = 0.3
-    noise = nmu + sigma * np.random.randn(num_points)
 
     # Plot the ground truth curve of the generated data.
     fig, ax = plt.subplots()
 
     ax.plot(x, y, 'g', label = "Ground Truth")
+
+    # Plot Model 1 Predictions
     ax.plot(x, pred1, 'r', label = label1)
+    # If Model 2 is used for comparision, plot the Model 2 predictions
     if pred2 is not None:
         ax.plot(x, pred2, "y", label = label2)
+        # Fill in the region of the std. ground truth with sigma
         ax.fill_between(x, y-sigma, y+sigma, color='r', alpha=0.2)
 
     # Plot the noisy data points.
     ax.scatter(x, t, label='Noisy Data Points')
+
+    # If only 1 Model prediction is being plotted
     if pred2 is None:
+        # Fill the region spanned by the std. sigma model 1 prediction with red.
         ax.fill_between(x, pred1-sigma, pred1+sigma, color='r', alpha=0.2)
+        # Only when the number of points is 50, draw lines from the noisy datapoints to the model curve.
         if num_points == 50:
             lines = [[(i, j), (i, line)] for i, j, line in zip(x, pred1, t)]    
             lc = mc.LineCollection(lines, colors='red', linewidths=1, zorder=1)
             ax.add_collection(lc)
 
+    # Create labels, title, legend and file that takes in the file_name parameter.
     ax.set_xlabel('X Values')
     ax.set_ylabel('Y Values, Predictions, Noisy Data')
     ax.set_title(title)
@@ -128,43 +162,88 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
     # plt.show()
     plt.close(fig)
 
-def rmse(a, b):
-    return np.sqrt(np.mean(np.square(a-b)))
+def rmse(predictions, targets):
+    """
+    Calculates the root mean squared error betwwen the predicted values and the target values.
+    Args:
+        predictions (np.array)
+        targets (np.array)
+    """
+    return np.sqrt(np.mean(np.square(predictions-targets)))
 
-def pad_weights(weights):
+def zero_pad_weights(weights):
+    """
+    Outputs the zero-padded weights for printing various model weights as a Pandas DataFrame.
+    Args:
+        predictions (np.array)
+        targets (np.array)
+    """
     while len(weights) <= 9:
         weights = np.append(weights, 0.)
     return weights
 
-# TODO: Use the existing functions to create/load data as needed. You will now call your linear regression model
-# to fit the data and plot the results.
-def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
+def linear_regression(num_points = 50, calc_rmse = False, rmse_degree = 9):
+    '''
+    Main Linear Regression Function
+    Args:
+            num_points (int): Number of points for the given experiment.
+            calc_rmse (bool): If true, will generate the plot of RMSE Error vs ln(lambda)
+            rmse_degree (int): Represents the degree of the polynomial model that is used for the RMSE plot.
+    '''
+
+    # Load the dataset corresponding to the given number of points.
     np.load(f'data{num_points}.npz')
     x = np.load(f'data{num_points}.npz')['x']
     y = np.load(f'data{num_points}.npz')['y']
     t = np.load(f'data{num_points}.npz')['t']
     sigma = np.load(f'data{num_points}.npz')['sigma']
 
+    # Dictionaries for saving the weights of the ML and MAP models.
     ml_weights_dict, map_weights_dict = {}, {}
 
+    # For Maximum Likelihood model creates polynomial model with various degrees and prints/saves the predictions.
+    # Loop over various model degrees.
     for i in [0,1,3,6,9]:
+
+        # Create a ML model object.
         ML_Model = ML(degree = i)
+
+        # Calculates the weights from the ML.fit() class methods.
         ml_weights = ML_Model.fit(x, t)
+
+        # Calculates the model predictions from the ML.predict() class method.
         ml_predictions = ML_Model.predict(x, ml_weights)
-        ml_weights_dict[f"ML:{i}"] = pad_weights(ml_weights)
+
+        # Saves the model weights in the dictionary with the degree as the key.
+        ml_weights_dict[f"ML:{i}"] = zero_pad_weights(ml_weights)
+
+        # Plots and saves the results.
         plot_results(x, y, ml_predictions, title = f"ML Model Degree {i}", file_name = f"{num_points}_ml_{i}", label1 = "ML Model Prediction", num_points = num_points)
     print(f"Number of Points: {num_points}")
     print(pd.DataFrame(ml_weights_dict))
 
+    # For Maximum A Posteriori model creates polynomial model with various degrees and prints/saves the predictions.
+    # Loop over various model degrees.
     for i in [0,1,3,6,9]:
+
+        # Create a ML model object.
         MAP_Model = MAP(degree = i, customReguralization = False)
+
+        # Calculates the weights from the ML.fit() class methods.
         map_weights = MAP_Model.fit(x, t)
+
+        # Calculates the model predictions from the ML.predict() class method.
         map_predictions = MAP_Model.predict(x, map_weights)
-        map_weights_dict[f"MAP:{i}"] = pad_weights(map_weights)
+
+        # Saves the model weights in the dictionary with the degree as the key.
+        map_weights_dict[f"MAP:{i}"] = zero_pad_weights(map_weights)
+
+        # Plots and saves the results.
         plot_results(x, y, map_predictions, title = f"MAP Model Degree {i}", file_name = f"{num_points}_map_{i}", label1 = "MAP Model Prediction", num_points = num_points)
     print(f"Number of Points: {num_points}")    
     print(pd.DataFrame(map_weights_dict))
 
+    # Iterates over various model degrees and compares the predictions of ML and MAP models.
     for i in [0,1,3,9,15,20]:
         ML_Model = ML(degree = i)
         MAP_Model = MAP(degree = i, customReguralization = False)
@@ -176,7 +255,10 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
                         title = f"ML vs MAP Predictions Degree: {i}", \
                         pred2 = map_predictions, label2 = f"MAP Model Degree: {i}", \
                         file_name = f"{num_points}_ml_vs_map{i}", num_points = num_points)
-    if calcRMSE:
+
+    # If calc_rmse is True, lnlambda iterates over range(-40,10) and calculates the root mean sqaured error.
+    # Results are plotted and saved.
+    if calc_rmse:
         rmse_arr = []
         for lnlambda in range(-40, 10):
             inputs = np.load("data50.npz")["x"]
@@ -194,6 +276,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         plt.savefig("results/rmse-lnlambda.png")
         # plt.show()
 
+    # Iterate over various lnlambda values and plot the model predictions.
     for lnlambda in [-18, -15, -13, 0, 10, 20]:
         CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
         custom_weights = CustomModel.fit(x, t)
@@ -201,9 +284,10 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = f"{num_points}_lnlambda{lnlambda}", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model", num_points = num_points)
 
 def main():
-    for num_points in [50, 20, 200]:
+    # Iterate over various number of points to perform linear regression experiments.
+    for num_points in [50]:
         generateNoisyData(num_points = num_points)
-        linear_regression(num_points = num_points, calcRMSE = True)
+        linear_regression(num_points = num_points, calc_rmse = True)
         plot_with_shadded_bar()
 
 if __name__ == '__main__':

@@ -9,26 +9,31 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
+                viz_desc_bounds() : Visualizes the decision boundaries of a classifier trained on two features of the dataset.
+
+                load_dataset() : Loads the Taiji Dataset
+
+                plot_conf_mats() : Plots the confusion matrix of the training and test classifications.
+
+                plot_class_mats() :  Plots the classification rates for each class in the form of a matrix for the training and test sets.
+
+                fisher_projection() : Takes the training features and training labels and calculates the significant Fisher projected eigen vectors.
+
+                EXAMPLE FUNCTIONS:
+                    example_decision_boundary() : An example of how to visualize the decision boundary of a classifier.
+                    example_classification() : An example of performing the classification.
 }
 '''
 
-import math
 import os
-
-import matplotlib.pyplot as plt
+import math
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-
-# TODO: import your implemented model here or use one of sklearn's classifiers 
-# from models import Classifier
-
-# Possible classifiers include LDA, KNN, etc. or any other classifier 
-# from sklearn
-# from sklearn.neighbors import KNeighborsClassifier, ...
 
 def viz_desc_bounds(classifier, feats, labels, idxA, idxB):
     """
@@ -166,20 +171,41 @@ def plot_conf_mats(dataset, **kwargs):
     plt.show()
 
 def plot_class_mats(dataset, **kwargs):
+    '''
+    Plots the classification rates for each class in the form of a matrix for the training and test sets.
+        Args:
+        dataset: name of the dataset.
+        train_labels: training labels.
+        pred_train_labels: predicted training labels.
+        test_labels: testing labels.
+        pred_test_labels: predicted testing labels.
+    '''
     train_labels = kwargs['train_labels']
     pred_train_labels = kwargs['pred_train_labels']
     test_labels = kwargs['test_labels']
     pred_test_labels = kwargs['pred_test_labels']
     
+    # Convert the values of the numpy array to floating values
     train_confusion = np.array(confusion_matrix(train_labels, pred_train_labels), dtype = np.float16)
+
+    # Divides the each row with the number of examples in the corresponding to recieve the per-class classification rates.
     for i in range(len(train_confusion)):
         train_confusion[i] = train_confusion[i]/sum(train_confusion[i])
+        
+    # Rounds the values of the matrix to 3 values after the decimal point. 
     train_confusion = np.around(train_confusion, 3)
-    
+
+    # Convert the values of the numpy array to floating values
     test_confusion = np.array(confusion_matrix(test_labels, pred_test_labels), dtype = np.float16)
+
+    # Divides the each row with the number of examples in the corresponding to recieve the per-class classification rates.
     for i in range(len(test_confusion)):
         test_confusion[i] = test_confusion[i]/sum(test_confusion[i])
+
+    # Rounds the values of the matrix to 3 values after the decimal point.
     test_confusion = np.around(test_confusion, 3)
+
+    # Plots the classification rate matrices.
     fig, ax = plt.subplots()
     disp = ConfusionMatrixDisplay(confusion_matrix=train_confusion, display_labels=np.unique(train_labels))
     disp.plot(ax=ax, xticks_rotation='vertical')
@@ -230,78 +256,109 @@ def example_classification(dataset='taiji'):
     # Get statistics
     plot_conf_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
 
-# TODO: Implement your Fisher projection
 def fisher_projection(train_feats, train_labels):
-    unique_train_labels = np.unique(train_labels)
-    mus = []
+    '''
+    Takes the training features and training labels and calculates the Fisher projection vectors.
+    Args:
+        train_feats (np.array): Training set features
+        train_labels (np.array): Training set labels
+    '''
+    # Create a list for storing means
+    means = []
 
-    for l in unique_train_labels:
-        now_train_feats = train_feats[train_labels == l]
-        now_train_feats_mu = np.mean(now_train_feats, axis=0)
-        mus.append(now_train_feats_mu)
+    # Find the unique training labels and store them.
+    train_labels_unique = np.unique(train_labels)
 
-    global_mu = np.mean(train_feats, axis=0)
+    # Iterate over all the unique training labels and append means to the main means list.
+    for label in train_labels_unique:
+        matched_train_feats = train_feats[train_labels == label]
+        mean_int_train_feats = np.mean(matched_train_feats, axis=0)
+        means.append(mean_int_train_feats)
 
-    S_b = np.zeros((train_feats.shape[1], train_feats.shape[1]))
-    for i, mu in enumerate(mus):
-        line_num = train_feats[train_labels == i].shape[0]
-        mu_i = mu - global_mu
-        mu_i = mu_i.reshape(-1, 1)
-        S_b += line_num * np.dot(mu_i, mu_i.T)
+    # Store the global mean of the training features.
+    global_mean = np.mean(train_feats, axis=0)
 
-    S_w_class = []
-    for i, mu in enumerate(mus):
-        S_i = np.zeros((train_feats.shape[1], train_feats.shape[1]))
-        for line in train_feats[train_labels == i]:
-            tmp = (line - mu)
-            tmp = tmp.reshape(-1, 1)
-            S_i += tmp @ tmp.T
-        S_w_class.append(S_i)
+    # Calculate the S_B matrix as shown in the derivations.
+    # Initializes with zeroes and then iterates over the means to calculate S_B Matrix
+    S_B_Matrix = np.zeros((train_feats.shape[1], train_feats.shape[1])) # (64,64) matrix
+    for label, mean in enumerate(means):
+        matched_feats = train_feats[train_labels == label].shape[0]
+        mean_label = mean - global_mean
+        mean_label = mean_label.reshape(-1, 1)
+        S_B_Matrix += matched_feats * np.dot(mean_label, mean_label.T)
 
-    S_w = np.zeros((train_feats.shape[1], train_feats.shape[1]))
+    # Initialize the S_W matrix to zeroes and then iterate over the means.
+    # Uses the closed form implementation shown in the derivations.
+    S_W_Matrix = np.zeros((train_feats.shape[1], train_feats.shape[1])) # (64,64) matrix
+    S_W_Matrix_Class = []
+    for label, mean in enumerate(means):
+        S = np.zeros((train_feats.shape[1], train_feats.shape[1])) # (64,64) matrix
+        for match in train_feats[train_labels == label]:
+            difference = (match - mean)
+            difference = difference.reshape(-1, 1)
+            S += difference @ difference.T
+        S_W_Matrix_Class.append(S)
 
-    for s in S_w_class:
-        S_w += s
+    # Add each value of the class based s_w matrix to the final S_W matrix.
+    for s_w in S_W_Matrix_Class:
+        S_W_Matrix += s_w
 
-    eig_vals, eig_vecs = np.linalg.eig(np.linalg.inv(S_w) @ S_b)
+    # Find the eigen values and eigen vectors of the matrix (S_W)^-1*S_B.
+    W = np.linalg.inv(S_W_Matrix) @ S_B_Matrix
+    eigen_values, eigen_vectors = np.linalg.eig(W)
 
-    ind = eig_vals.argsort()[::-1]
-    # eig_vals = eig_vals[ind]
-    eig_vecs = eig_vecs[:, ind]
-    eig_vecs = eig_vecs[:, :6]
-    return eig_vecs
+    # Store the sorted eigen values as eigen_indices to form the significance order of eigen values.
+    eigen_indices = eigen_values.argsort()[::-1]
+    eigen_vectors = eigen_vectors[:, eigen_indices]
 
-# TODO: Use the exisintg functions load_dataset and plot_conf_mats. Using a classifier (either one you write
-# or an imported sklearn function), perform classification on the fisher projected data.
+    # Picks the 8 most significant eigen vectors and outputs them for classification.
+    eigen_vectors = eigen_vectors[:, :8] #(64,8) matrix
+    return eigen_vectors
+
 def classification(dataset = "taiji", classifier = "lda"):
-
+    '''
+    Performs Classification on the Taiji dataset
+    '''
+    # Loads the dataset
     train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset, verbose = True)
 
+    # Loads the eigen vectors corresponding to 8 most significant eigen values from the fisher projection function
     eigen_vectors = fisher_projection(train_feats, train_labels)
 
+    # Calculates the fisher projected training features
     proj_train_feats = np.real(train_feats @ eigen_vectors)
 
+    # Calculates the fisher projected test set features
     proj_test_feats = np.real(test_feats @ eigen_vectors)
 
+    # Performs the Classification either through LDA() or KNN() model.
     if classifier == "lda":
         clf = LinearDiscriminantAnalysis()
     if classifier == "knn":
-        clf = KNeighborsClassifier(n_neighbors = 5)
+        clf = KNeighborsClassifier(n_neighbors = 10)
 
+    # Classifier object gets fit from the fisher projected training set and training set labels.
     clf.fit(proj_train_feats, train_labels)
 
+    # Predicted training and test set labels are calculated.
     pred_train_labels = clf.predict(proj_train_feats)
     pred_test_labels = clf.predict(proj_test_feats)
 
+    # Using sklearn.metrics.accuracy_score, the overall classification rate has been calculated.
+    # The overall classification rate is limited to 5 digits after the decimal point.
     print("Overall Train Classification Rate: ", np.round(accuracy_score(train_labels, pred_train_labels), 5))
     print("Overall Test Classification Rate: ", np.round(accuracy_score(test_labels, pred_test_labels), 5))
 
+    # Plots the confusion matrices.
     plot_conf_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
+    # Plots the classification rate matrices.
     plot_class_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
 
 def main():
     example_decision_boundary()
-    classification()
+    # Classifier takes in arguments:
+    # classifier: "lda" or "knn".
+    classification(classifier = "knn")
     
 if __name__ == '__main__':
     main()
