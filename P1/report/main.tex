@@ -1,4 +1,3 @@
-
 \documentclass[12pt,twoside,a4paper]{article} 
 
 \usepackage{color,amssymb,amsmath,mathtools} 
@@ -6,6 +5,7 @@
 \usepackage{amsmath,bm}
 \usepackage{subfig}
 \usepackage{float}
+% \usepackage{graphicx}
  
  % Metadata info
 \newcommand{\mytitle}{Project 1} 
@@ -202,9 +202,10 @@ Hence, the distribution represented by the Gaussian distribution assumption gets
 \end{equation}
 
 %-------------------------------------------------------------------------
+\pagebreak
 \subsection{Maximum A Posteriori Estimator}
 Unlike \textit{Maximum Likelihood Estimation} where the posterior distribution on the ground truth was assumed to be from a Gaussian distribution, Maximum A Posteriori Estimator introduces a prior distribution on the weight vector \textbf{w}. That could be written mathematically as in \eqref{LN1}. Using the general Gaussian distribution equation and applying natural logarithm to \eqref{LNFINAL}.
-\begin{align} 
+\begin{align}
 p(\textbf{w}|\alpha) =& \mathcal{N}(\textbf(w)|0,\alpha^{-1}\textbf{I}) \label{LN1}\\
 =& \frac{1}{(2\pi\alpha^{-1})^{1/2}}\exp\{-\frac{1}{2\alpha^{-1}}(\textbf{w}-0)^2\} \\
 p(\textbf{w}|\alpha) =& \left( \frac{\alpha}{2\pi}\right)^{(M+1)/2} \exp\left\{ -\frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} \\
@@ -217,6 +218,7 @@ Posterior \propto& \ Likelihood * Prior\\
     \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \propto& \ln p(\textbf{t}|\textbf{x},\textbf{w},\beta) + \ln p(\textbf{w}|\alpha) \\
     \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) =& \ln p(\textbf{t}|\textbf{x},\textbf{w},\beta) + \ln p(\textbf{w}|\alpha) + constant \label{PLP}
 \end{align}
+
 Substituting the equations \eqref{LOGLL} and \eqref{LNFINAL} in \eqref{PLP} we get,
 
 \begin{multline}
@@ -235,7 +237,6 @@ Ignoring the constants (for simplicity as they would be equate to zero on taking
 \begin{equation}
      - \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\} 
 \end{equation}
-
 \begin{align}
     \triangledown \left(- \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \right ) =& 0 \\
     \triangledown \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}  \right ) =& 0 \\
@@ -253,13 +254,20 @@ We can observe that, this optimization criterion is equivalent to minimizing the
 \pagebreak
 \subsection{Report}
 \subsubsection{Dataset}
-Given dataset consists of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
+Given dataset (shown in \ref{fig: DATASET}) consists of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{results/gt_data.png}
+    \includegraphics{results/gt_data.png}
     \caption{Given training dataset consists of ($x$), ($y$), ($t$) and($sigma$) values.}
     \label{fig: DATASET}
 \end{figure}
+\begin{itemize}
+    \item The ground truth values of the curve represent the equation $y = sin(0.5*x)$.
+    \item The target values of the dataset are formed by adding a Gaussian noise to the ground truth points.
+    \item The shaded part in \ref{fig: DATASET} represents the Gaussian noise spanned over the ground truth.
+    \item The given dataset has variable \textit{num\_points} that could be used to change the number of points used for the experiment.
+    \item The generated datasamples are stored in \textit{.npz} format.
+\end{itemize}
 %-------------------------------------------------------------------------
 \pagebreak
 \subsubsection{Visualization}
@@ -279,6 +287,7 @@ For the dataset with $50$ training data points, here are the results observed fo
       \includegraphics[width=0.55\linewidth]{results/50_ml_9.png}}
     \hspace{0mm}
     \caption{Maximum Likelihood Estimation Model Prediction Visualization}
+    \label{MLFIG}
 \end{figure}
 
 \pagebreak
@@ -297,10 +306,12 @@ For the dataset with $50$ training data points, here are the results observed fo
       \includegraphics[width=0.55\linewidth]{results/50_map_9.png}}
     \hspace{0mm}
     \caption{Maximum A Posteriori Estimation Model Prediction Visualization}
+    \label{MAPFIG}
 \end{figure}
 
 %-------------------------------------------------------------------------
 \subsubsection{Comparison}
+In \ref{COMP}, comparisons of the Maximum Likelihood Model and the Maximum A Posteriori Model are observed for varying model degrees corresponding to 50 data points.
 \begin{figure}[H]
     \centering
     \subfloat[Model Degree: $0$]{
@@ -319,17 +330,31 @@ For the dataset with $50$ training data points, here are the results observed fo
       \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map20.png}}
     \hspace{0mm}
     \caption{Maximum A Posteriori Estimation Model Prediction Visualization}
+    \label{COMP}
 \end{figure}
 %-------------------------------------------------------------------------
 \pagebreak
 \subsubsection{Summary}
+\begin{itemize}
+    \item Predictions of both the \textit{Maximum Likelihood Estimation} and \textit{Maximum A Posterirori} models have been made and plotted.
+    \item From \ref{MLFIG}, we can observe the polynomial degrees 0 and 1 weren't good fits of the underlying ground truth curve. The polynomial function representing were lines, and weren't able to capture the data distribution accurately.
+    \item However, in \ref{MLFIG} we know that polynomial with degree 3 was able to provide a good fit for the data distribution, being \textit{just right} for the data modelling. But on the other hand, the polynomial with degree 9 was over-fitting the ground truth curve, but was trying to go through most of the target data points.
+    \item Similar behaviour is observed in the case of \textit{Maximum A Posteriori Estimation} model as shown in \ref{MAPFIG}.
+    \item Higher the model degree, the model fits the noisy data pretty well. However, when it comes to degree 9 polynomial, it overfits to the examples and isn't able to generate a proper sine-like curve to capture the ground truth distribution.
+    \item Hence, in this case as well, the model degree 3 performed most optimally in terms of fitting to the noisy data distribution.
+    \item Similarly, we can observe the model based comparison based on the varying degrees as shown in \ref{COMP}. We can see that the MAP model has smoothed out the overfit-effects at higher order compared to ML model which tries to capture every datapoint in the target space.
+    \item Hence, we can say that higher order degrees for polynomials have overfitted the noisy training data, especially in the case of \textit{Maximum Likelihood Estimation}. However, \textit{Maximum A Posteriori Estimation} did a good job of smoothing out the noise at a certain extent without letting overfit the data distribution.
+    \item This is because of the inherent regularization being applied by MAP model.
+\end{itemize}
 
 %-------------------------------------------------------------------------
-\pagebreak
 \subsection{Extra Credit}
 %-------------------------------------------------------------------------
 
 \subsubsection{Additional Lambda Values}
+
+The results for the regularized custom model with varying $\lnlambda$ values is shown in \ref{VARLN}. \\ We can observe that higher the value of regularization, the curve tends to become more linear and penalizes the weight vectors at a higher extent.
+
 \begin{figure}[H]
     \centering
     \subfloat[Regularized Model $\ln \lambda = -13$]{
@@ -348,17 +373,18 @@ For the dataset with $50$ training data points, here are the results observed fo
       \includegraphics[width=0.5\linewidth]{results/50_lnlambda20.png}}
     \hspace{0mm}
     \caption{Additional lambda values model predictions}
+    \label{VARLN}
 \end{figure}
-\begin{figure}[!htb]
+\begin{figure}[H]
     \centering
-    \includegraphics{results/rmse-lnlambda.png}
+    \includegraphics[width=0.8\linewidth]{results/rmse-lnlambda.png}
     \caption{Root Mean Squared Error vs. $\ln \lambda$ plot.}
-    \label{fig:lnlambda}
+    \label{LNLAMBDARMSE}
 \end{figure}
+The plot \ref{LNLAMBDARMSE} represents the plot of Root Mean Squared Error vs $\ln\lambda$ values. For higher values of $\lnlambda$, models tends to underfit the training distribution and produces worse training error.
 %-------------------------------------------------------------------------
-\pagebreak
 \subsubsection{Varying Degree of Polynomial Order}
-
+The table \ref{MLWEIGHTS} represents the weights of the Maximum Likelihood Model with varying degrees. 
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|}
@@ -378,6 +404,12 @@ For the dataset with $50$ training data points, here are the results observed fo
 \caption{Weights of the Maximum Likelihood model with varying degrees.}
 \label{MLWEIGHTS}
 \end{table}
+
+The table \ref{MAPWEIGHTS} represents the weights of the Maximum A Posteriori Model with varying degrees.
+\begin{itemize}
+    \item We observe that Maximum Likelihood estimation model weights are higher compared to MAP model weights.
+    \item The higher order coefficient are nearly non-existent in the case of the MAP model.
+\end{itemize}
 
 \begin{table}[H]
 \centering
@@ -401,8 +433,8 @@ For the dataset with $50$ training data points, here are the results observed fo
 
 
 %-------------------------------------------------------------------------
-\pagebreak
 \subsubsection{Varying Number of Sample Points}
+Higher the data points used for fitting the polynomial, the model is able to perform better on capturing the underlying ground truth curve as shown in \ref{DATAP}.
 
 \begin{figure}[H]
     \centering
@@ -417,6 +449,7 @@ For the dataset with $50$ training data points, here are the results observed fo
       \includegraphics[width=0.5\linewidth]{results/200_map_9.png}}
     \hspace{0mm}
     \caption{Maximum Likelihood and Maximum A Posteriori Estimation Model Prediction with varying data points.}
+    \label{DATAP}
 \end{figure}
 
 %-------------------------------------------------------------------------
@@ -482,6 +515,12 @@ Hence, we can choose the eigenvectors that correspond to the $D'$ largest eigenv
 %-------------------------------------------------------------------------
 \subsubsection{Dataset}
 Given dataset is of \textit{Taiji Poses} with 7 different poses and one transitional pose.
+\begin{figure}[H]
+    \centering
+    \includegraphics{results/decision_boundary.png}
+    \caption{Taiji Dataset Example Decision Boundary}
+    \label{fig:my_label}
+\end{figure}
 %-------------------------------------------------------------------------
 \subsubsection{Confusion Matrix}
 \begin{figure}[H]
@@ -506,6 +545,26 @@ Given dataset is of \textit{Taiji Poses} with 7 different poses and one transiti
     \hspace{0mm}
     \caption{Taiji Training and Test Classification Rate Matrices}
 \end{figure}
+
+\begin{table}[H]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Model} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Overall Training \\ Classification Rate\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Overall Test \\ Classification Rate\end{tabular}} \\ \hline
+LDA               & 0.95775 & 0.93451 \\ \hline
+KNN: 3 Neighbors  & 0.98380 & 0.80224 \\ \hline
+KNN: 5 Neighbors  & 0.97888 & 0.83231 \\ \hline
+KNN: 7 Neighbors  & 0.97562 & 0.87156 \\ \hline
+KNN: 10 Neighbors & 0.97324 & 0.88583 \\ \hline
+\end{tabular}%
+}
+\caption{Overall Classification Rates of various classifiers, after performing Fisher projection.}
+\label{OCRATE}
+\end{table}
+
 %-------------------------------------------------------------------------
 \subsubsection{Analysis}
 
