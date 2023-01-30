@@ -115,9 +115,10 @@ def plot_results(x=None, y=None, pred1 = None, label1 = None, sigma = False, pre
     ax.scatter(x, t, label='Noisy Data Points')
     if pred2 is None:
         ax.fill_between(x, pred1-sigma, pred1+sigma, color='r', alpha=0.2)
-        lines = [[(i, j), (i, line)] for i, j, line in zip(x, pred1, t)]    
-        lc = mc.LineCollection(lines, colors='red', linewidths=1, zorder=1)
-        ax.add_collection(lc)
+        if num_points == 50:
+            lines = [[(i, j), (i, line)] for i, j, line in zip(x, pred1, t)]    
+            lc = mc.LineCollection(lines, colors='red', linewidths=1, zorder=1)
+            ax.add_collection(lc)
 
     ax.set_xlabel('X Values')
     ax.set_ylabel('Y Values, Predictions, Noisy Data')
@@ -164,9 +165,9 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
     print(f"Number of Points: {num_points}")    
     print(pd.DataFrame(map_weights_dict))
 
-    for i in [3,9,15,20,30,40,50]:
+    for i in [0,1,3,9,15,20]:
         ML_Model = ML(degree = i)
-        MAP_Model = MAP(degree = i)
+        MAP_Model = MAP(degree = i, customReguralization = False)
         ml_weights = ML_Model.fit(x, t)
         map_weights = MAP_Model.fit(x, t)
         ml_predictions = ML_Model.predict(x, ml_weights)
@@ -177,7 +178,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
                         file_name = f"{num_points}_ml_vs_map{i}", num_points = num_points)
     if calcRMSE:
         rmse_arr = []
-        for lnlambda in range(-40, -20):
+        for lnlambda in range(-40, 10):
             inputs = np.load("data50.npz")["x"]
             targets = np.load("data50.npz")["t"]
             rmseModel = MAP(degree = rmse_degree, customReguralization = True, lnlambda = lnlambda)
@@ -185,7 +186,7 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
             predictions = rmseModel.predict(inputs, weights)
             rmse_error = rmse(predictions, targets)
             rmse_arr.append(rmse_error)
-        plt.plot(range(-40,-20), rmse_arr)
+        plt.plot(range(-40,10), rmse_arr)
         # plt.ylim([0, 1])
         plt.xlabel(r"ln$\lambda$")
         plt.ylabel(r"$E_{RMS}$")
@@ -193,14 +194,14 @@ def linear_regression(num_points = 50, calcRMSE = False, rmse_degree = 9):
         plt.savefig("results/rmse-lnlambda.png")
         # plt.show()
 
-    for lnlambda in [-18, -15, -13]:
+    for lnlambda in [-18, -15, -13, 0, 10, 20]:
         CustomModel = MAP(degree = 3, customReguralization = True, lnlambda = lnlambda)
         custom_weights = CustomModel.fit(x, t)
         custom_predictions = CustomModel.predict(x, custom_weights)
         plot_results(x, y, custom_predictions, title = r"Custom Model Degree 3, ln$\lambda$ = " + str(lnlambda), file_name = f"{num_points}_lnlambda{lnlambda}", label1 = r"$ln\lambda$ = "+str(lnlambda)+" Model", num_points = num_points)
 
 def main():
-    for num_points in [50, 20]:
+    for num_points in [50, 20, 200]:
         generateNoisyData(num_points = num_points)
         linear_regression(num_points = num_points, calcRMSE = True)
         plot_with_shadded_bar()

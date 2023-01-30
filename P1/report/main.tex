@@ -1,9 +1,11 @@
+
 \documentclass[12pt,twoside,a4paper]{article} 
 
 \usepackage{color,amssymb,amsmath,mathtools} 
 \usepackage{fullpage,caption, listings,clrscode,placeins}
 \usepackage{amsmath,bm}
 \usepackage{subfig}
+\usepackage{float}
  
  % Metadata info
 \newcommand{\mytitle}{Project 1} 
@@ -111,7 +113,7 @@ A suitable criteria for optimizing the model parameters is to minimize the squar
 \begin{equation}\label{ERRML1}
     E(\textbf{w}) = \frac{1}{2}\sum_{n=1}^{N}\{y(x^n, \textbf{w})-t_n\}^2
 \end{equation}
-The two most popular approaches to solve the error function and estimate the model parameters which take the uncertainty into consideration through the use of Bayesian statistics are:
+The two most popular approaches to solve the error function and estimate the model parameters which take the uncertainty into consideration through the use of Bayesian statistics \cite{statistical} are:
 \begin{enumerate}
     \item Maximum Likelihood Estimator
     \item Maximum A Posteriori Estimator
@@ -139,7 +141,7 @@ Now taking the equation \eqref{1.61}, applying the general equation \eqref{1.46}
 =& N\ln \{ \frac{\beta}{(2\pi)} \}^{1/2} + \sum_{n=1}^{N} {-\frac{\beta}{2}\{y(x_n,\textbf{w})-t_n\}^2} \\
 \ln p(t|x,\textbf{w}, \beta) =& -\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \frac{N}{2}\ln\beta - \frac{N}{2}\ln(2\pi) \label{LOGLL}
 \end{align}
-From statistics, we know that \eqref{LOGLL} is represented as log-likelihood and the first term on the right-hand-side, $-\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2}$ resembles the \textit{\textbf{sum of the squared error}}. Hence, maximizing the log-likelihood function is equivalent to minimizing the negative log-likelihood function. \\
+From statistics \cite{statistical}, we know that \eqref{LOGLL} is represented as log-likelihood and the first term on the right-hand-side, $-\frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2}$ resembles the \textit{\textbf{sum of the squared error}}. Hence, maximizing the log-likelihood function is equivalent to minimizing the negative log-likelihood function. \\
 Taking negative on both sides, we get the equation of negative log-likelihood which is used to 
 \begin{equation} \label{NLL}
     -\ln p(t|x,\textbf{w}, \beta) = \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} - \frac{N}{2}\ln\beta + \frac{N}{2}\ln(2\pi)
@@ -238,30 +240,33 @@ Ignoring the constants (for simplicity as they would be equate to zero on taking
     \triangledown \left(- \ln p(\textbf{w}|\textbf{x},\textbf{t},\alpha,\beta) \right ) =& 0 \\
     \triangledown \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{y(x_n,\textbf{w})-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}  \right ) =& 0 \\
     \triangledown \left( \frac{\beta}{2}\sum_{n=1}^{N} {\{ \textbf{w}^T\textbf{X}-t_n\}^2} + \left\{ \frac{\alpha}{2}\textbf{w}^T\textbf{w}\right\}  \right ) =& 0 \\
+    2*\frac{\beta}{2}\left ( \sum_{n=1}^{N} {\{ \textbf{w}^T\textbf{X}-t_n\}^T\textbf{X}} \right) + \left\{ 2*\frac{\alpha}{2}\textbf{w}\right\} =& 0 \\
+    \beta( \textbf{X}^T\textbf{X}\textbf{w}-\textbf{X}^T\textbf{t})+ \alpha\textbf{w} =& 0 \\
+    \beta\textbf{X}^T\textbf{X}\textbf{w}-\beta\textbf{X}^T\textbf{t}+ \alpha\textbf{w} =& 0 \\
+    \textbf{X}^T\textbf{X}\textbf{w}+ \frac{\alpha}{\beta}\textbf{w} =& \textbf{X}^T\textbf{t} \\
  \textbf{w} =& \left(\textbf{X}^T\textbf{X} + \frac{\alpha}{\beta}\textbf{I}\right)^{-1}\textbf{X}^T\textbf{t} \\
  \textbf{w}_{MAP} =& \left(\textbf{X}^T\textbf{X} + \lambda\textbf{I}\right)^{-1}\textbf{X}^T\textbf{t}
 \end{align}
-
 We can observe that, this optimization criterion is equivalent to minimizing the regularized sum-of-squares error, with the parameter $\lambda = \alpha/\beta$.
 
 %-------------------------------------------------------------------------
+\pagebreak
 \subsection{Report}
 \subsubsection{Dataset}
 Given dataset consists of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
-\begin{figure}[!htb]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/gt_data.png}
-    \caption{Given training dataset \textit{data.npz}. Consists of ($x$), ($y$), ($t$) and($sigma$) values.}
+    \caption{Given training dataset consists of ($x$), ($y$), ($t$) and($sigma$) values.}
     \label{fig: DATASET}
 \end{figure}
 %-------------------------------------------------------------------------
-
 \pagebreak
 \subsubsection{Visualization}
 
 \subsubsection*{Maximum Likelihood Estimation}
-
-\begin{figure}[!htb]
+For the dataset with $50$ training data points, here are the results observed for the \textit{Maximum Likelihood Estimation} Model.
+\begin{figure}[H]
     \centering
     \subfloat[Model Degree: $0$]{
       \includegraphics[width=0.55\linewidth]{results/50_ml_0.png}}
@@ -278,8 +283,8 @@ Given dataset consists of input values($x$), ground truth values($y$), target va
 
 \pagebreak
 \subsubsection*{Maximum A Posteriori Estimation}
-
-\begin{figure}[!htb]
+For the dataset with $50$ training data points, here are the results observed for the \textit{Maximum A Posteriori Estimation} Model.
+\begin{figure}[H]
     \centering
     \subfloat[Model Degree: $0$]{
       \includegraphics[width=0.55\linewidth]{results/50_map_0.png}}
@@ -296,22 +301,65 @@ Given dataset consists of input values($x$), ground truth values($y$), target va
 
 %-------------------------------------------------------------------------
 \subsubsection{Comparison}
-
+\begin{figure}[H]
+    \centering
+    \subfloat[Model Degree: $0$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map0.png}}
+    \subfloat[Model Degree: $1$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map1.png}}
+    \hspace{0mm}
+    \subfloat[Model Degree: $3$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map3.png}}
+    \subfloat[Model Degree: $9$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map9.png}}
+    \hspace{0mm}
+    \subfloat[Model Degree: $15$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map15.png}}
+    \subfloat[Model Degree: $20$]{
+      \includegraphics[width=0.5\linewidth]{results/50_ml_vs_map20.png}}
+    \hspace{0mm}
+    \caption{Maximum A Posteriori Estimation Model Prediction Visualization}
+\end{figure}
 %-------------------------------------------------------------------------
+\pagebreak
 \subsubsection{Summary}
 
 %-------------------------------------------------------------------------
 \pagebreak
 \subsection{Extra Credit}
-\subsubsection*{Here are my solutions for the extra credit problems.}
-
 %-------------------------------------------------------------------------
+
 \subsubsection{Additional Lambda Values}
-
+\begin{figure}[H]
+    \centering
+    \subfloat[Regularized Model $\ln \lambda = -13$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda-13.png}}
+    \subfloat[Regularized Model $\ln \lambda = -15$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda-15.png}}
+    \hspace{0mm}
+    \subfloat[Regularized Model $\ln \lambda = -18$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda-18.png}}
+    \subfloat[Regularized Model $\ln \lambda = 0$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda0.png}}
+    \hspace{0mm}
+    \subfloat[Regularized Model $\ln \lambda = 10$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda10.png}}
+    \subfloat[Reguralized Model $\ln \lambda = 20$]{
+      \includegraphics[width=0.5\linewidth]{results/50_lnlambda20.png}}
+    \hspace{0mm}
+    \caption{Additional lambda values model predictions}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics{results/rmse-lnlambda.png}
+    \caption{Root Mean Squared Error vs. $\ln \lambda$ plot.}
+    \label{fig:lnlambda}
+\end{figure}
 %-------------------------------------------------------------------------
+\pagebreak
 \subsubsection{Varying Degree of Polynomial Order}
 
-\begin{table}[!htb]
+\begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
@@ -331,7 +379,7 @@ Given dataset consists of input values($x$), ground truth values($y$), target va
 \label{MLWEIGHTS}
 \end{table}
 
-\begin{table}[!htb]
+\begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
@@ -353,7 +401,23 @@ Given dataset consists of input values($x$), ground truth values($y$), target va
 
 
 %-------------------------------------------------------------------------
+\pagebreak
 \subsubsection{Varying Number of Sample Points}
+
+\begin{figure}[H]
+    \centering
+    \subfloat[ML Model, 20 Data Points]{
+      \includegraphics[width=0.5\linewidth]{results/20_ml_9.png}}
+    \subfloat[MAP Model, 20 Data Points]{
+      \includegraphics[width=0.5\linewidth]{results/20_map_9.png}}
+    \hspace{0mm}
+    \subfloat[ML Model, 200 Data Points]{
+      \includegraphics[width=0.5\linewidth]{results/200_ml_9.png}}
+    \subfloat[MAP Model, 200 Data Points]{
+      \includegraphics[width=0.5\linewidth]{results/200_map_9.png}}
+    \hspace{0mm}
+    \caption{Maximum Likelihood and Maximum A Posteriori Estimation Model Prediction with varying data points.}
+\end{figure}
 
 %-------------------------------------------------------------------------
 \subsubsection{Curse of Dimensionality}
@@ -365,53 +429,83 @@ Unlike regression problems, the objective of classification models is to assign 
 \textit{Fisher Linear Discriminant Analysis} is considered to be a part of the family of linear models used for classification, where the decision boundaries are linear functions of the provided input vector $\textbf{x}$.
 %-------------------------------------------------------------------------
 \subsection{Fisher Projection}
-In \textit{Fisher Linear Discriminant}, the model tries to reduce the dimension of the
-\begin{equation}
+In \textit{Fisher Linear Discriminant}, the algorithm tries to project the data from a high-dimensional space to a lower-dimensional space. However, inherently due to drop of dimensions, some of the key information is lost. The main goal of the algorithms is to find a \textbf{projection to a decision subspace that maximizes the \textit{class separation}}.
+In Fisher projection, concurrently 2 operations are performed which could be considered as our objective function,
+\begin{itemize}
+    \item \textbf{Maximizing the distance between projected inter-class means.}
+    \item \textbf{Minimizing the distance between projected intra-class variances.}
+\end{itemize}
+However, optimizing those functions individually is not possible. Hence, the goal is defined to maximize their ratio. They are mathematically viewed as following, \\
+We tend to construct a Fisher project matrix \textbf{W} which aids int he transformation of the input data \textbf{x} as shown in \eqref{FPM}.
+\begin{equation}\label{FPM}
     \textbf{y} = \textbf{W}^T\textbf{x}
 \end{equation}
-
-\begin{equation}
+Applying the intra-class variance over all the given K classes, we get \eqref{SW}
+\begin{equation}\label{SW}
     \textbf{S}_W = \sum_{k=1}^K\textbf{S}_k
 \end{equation}
-where the term $\textbf{S}_k$ is represented by,
+where of each class, the matrix $\textbf{S}_k$ is represented by,
 \begin{equation}
     \textbf{S}_k = \sum_{n\in\textit{C}_k}(x_n - \textbf{m}_k)(x_n - \textbf{m}_k)^T
 \end{equation}
-
+If we have only two classes we get,
 \begin{equation}
     \textbf{m}_1 = \frac{1}{N_1}\sum_{n\in\textit{C}_1}x_n,\qquad \textbf{m}_2 = \frac{1}{N_2}\sum_{n\in\textit{C}_2}x_n
 \end{equation}
-
+For multiple classes we have, 
 \begin{equation}
     \textbf{m}_k = \frac{1}{N_k}\sum_{n\in\textit{C}_k}\textbf{x}_n
 \end{equation}
-
-\begin{equation}
+The global mean of the given data is given by,
+\begin{equation}\label{GLOBALM}
+    \textbf{m} = \frac{1}{N}\sum_{k=1}^K N_k\textbf{m}_k
+\end{equation}
+Where the term $N = \sum_kN_k$ represented the total number of data points.
+And the matrices $\textbf{S}_T$ and $\textbf{S}_B$ that aid in the construction of the projection matrix are given by, 
+\begin{equation} \label{ST}
     \textbf{S}_T = \sum_{n=1}^N(\textbf{x}_n - \textbf{m})(\textbf{x}_n - \textbf{m})^T
 \end{equation}
 
-\begin{equation}
+\begin{equation} \label{SB}
     \textbf{S}_B = \sum_{n=1}^N N_K(\textbf{m}_k - \textbf{m})(\textbf{m}_k - \textbf{m})^T
 \end{equation}
-
+Now, to find the most optimal \textbf{W} we find a criterion to minimize using the equations \eqref{ST} and \eqref{SB} as,
 \begin{equation}
-    \textbf{m} = \frac{1}{N}\sum_{k=1}^K N_k\textbf{m}_k
+    J(\textbf{W}) = Tr\left( (\textbf{W}\textbf{S}_W\textbf{W}^T)^{-1} (\textbf{W}\textbf{S}_B\textbf{W}^T) \right )
 \end{equation}
-
-\begin{align}
-    J(\textbf{W}) =& Tr\left\{ s_W^{-1}s_B \right \} \\
-    J(\textbf{W}) =& Tr\left( (\textbf{W}\textbf{S}_W\textbf{W}^T)^{-1} (\textbf{W}\textbf{S}_B\textbf{W}^T) \right )
-\end{align}
+Minimizing this criterion, $J(w)$ is done by finding the eigen-vectors of $W = S_W^{-1}S_B$. \\
+Hence, we can choose the eigenvectors that correspond to the $D'$ largest eigenvalues.
 
 %-------------------------------------------------------------------------
+\pagebreak
 \subsection{Report}
-
+%-------------------------------------------------------------------------
+\subsubsection{Dataset}
+Given dataset is of \textit{Taiji Poses} with 7 different poses and one transitional pose.
 %-------------------------------------------------------------------------
 \subsubsection{Confusion Matrix}
-
+\begin{figure}[H]
+    \centering
+    \subfloat[Taiji Training Data Confusion Matrix]{
+      \includegraphics[width=0.6\linewidth]{results/taiji_train_confusion.png}}
+    \hspace{0mm}
+    \subfloat[Taiji Test Data Confusion Matrix]{
+      \includegraphics[width=0.6\linewidth]{results/taiji_test_confusion.png}}
+    \hspace{0mm}
+    \caption{Taiji Training and Test Confusion Matrices}
+\end{figure}
 %-------------------------------------------------------------------------
 \subsubsection{Classification Rates}
-
+\begin{figure}[H]
+    \centering
+    \subfloat[Taiji Training Data Classification Rate Matrix]{
+      \includegraphics[width=0.6\linewidth]{results/taiji_train_classification.png}}
+    \hspace{0mm}
+    \subfloat[Taiji Test Data Classification Rate Matrix]{
+      \includegraphics[width=0.6\linewidth]{results/taiji_test_classification.png}}
+    \hspace{0mm}
+    \caption{Taiji Training and Test Classification Rate Matrices}
+\end{figure}
 %-------------------------------------------------------------------------
 \subsubsection{Analysis}
 
@@ -427,7 +521,9 @@ where the term $\textbf{S}_k$ is represented by,
 
 %-------------------------------------------------------------------------
 \subsection{Introduction}
-According to Fischer \cite{CLT}, classical central limit theorem states that for a large enough sample size the population distribution can be assumed to be Gaussian. However, its essential to note that the sequence of random variables forming the population must be drawn from a distribution with finite mean and variance and must follow the i.i.d. criterion.
+
+According to Fischer \cite{CLT}, classical central limit theorem states that for a large enough sample size the population distribution can be assumed to be Gaussian. However, its essential to note that the sequence of random variables forming the population must be drawn from a distribution with finite mean and variance and must follow the i.i.d. criterion. \\
+Bishop \cite{ChrisPRML}, mentions that the posterior distribution for a model is expected to become increasingly better approximated by a Gaussian distribution as the number of data points is increased.
 
 Let us consider an unknown distribution with $n$ independent, identically distributed random variables $X_1, X_2, ..., X_n$, where is $n$ is very large with mean, $\mu$ and variance, $\sigma^2$. \\
 
