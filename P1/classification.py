@@ -21,6 +21,7 @@ import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
 # TODO: import your implemented model here or use one of sklearn's classifiers 
 # from models import Classifier
@@ -164,6 +165,38 @@ def plot_conf_mats(dataset, **kwargs):
     plt.savefig(f'results/{dataset}_test_confusion.png', bbox_inches='tight', pad_inches=0)
     plt.show()
 
+def plot_class_mats(dataset, **kwargs):
+    train_labels = kwargs['train_labels']
+    pred_train_labels = kwargs['pred_train_labels']
+    test_labels = kwargs['test_labels']
+    pred_test_labels = kwargs['pred_test_labels']
+    
+    train_confusion = np.array(confusion_matrix(train_labels, pred_train_labels), dtype = np.float16)
+    for i in range(len(train_confusion)):
+        train_confusion[i] = train_confusion[i]/sum(train_confusion[i])
+    train_confusion = np.around(train_confusion, 3)
+    
+    test_confusion = np.array(confusion_matrix(test_labels, pred_test_labels), dtype = np.float16)
+    for i in range(len(test_confusion)):
+        test_confusion[i] = test_confusion[i]/sum(test_confusion[i])
+    test_confusion = np.around(test_confusion, 3)
+    fig, ax = plt.subplots()
+    disp = ConfusionMatrixDisplay(confusion_matrix=train_confusion, display_labels=np.unique(train_labels))
+    disp.plot(ax=ax, xticks_rotation='vertical')
+    ax.set_title('Training Classification Rate Matrix')
+    plt.tight_layout()
+    plt.savefig(f'results/{dataset}_train_classification.png', bbox_inches='tight', pad_inches=0)
+    plt.show()
+    plt.close(fig)
+
+    fig, ax = plt.subplots()
+    disp = ConfusionMatrixDisplay(confusion_matrix=test_confusion, display_labels=np.unique(test_labels))
+    disp.plot(ax=ax, xticks_rotation='vertical')
+    ax.set_title('Testing Classification Rate Matrix')
+    plt.tight_layout()
+    plt.savefig(f'results/{dataset}_test_classification.png', bbox_inches='tight', pad_inches=0)
+    plt.show()
+
 def example_decision_boundary(dataset='taiji', indices=[0, 6]):
     """
     An example of how to visualize the decision boundary of a classifier.
@@ -216,15 +249,14 @@ def fisher_projection(train_feats, train_labels):
         mu_i = mu_i.reshape(-1, 1)
         S_b += line_num * np.dot(mu_i, mu_i.T)
 
-    # 计算S矩阵
     S_w_class = []
     for i, mu in enumerate(mus):
         S_i = np.zeros((train_feats.shape[1], train_feats.shape[1]))
         for line in train_feats[train_labels == i]:
             tmp = (line - mu)
-            tmp = tmp.reshape(-1, 1)  # 转成列向量
+            tmp = tmp.reshape(-1, 1)
             S_i += tmp @ tmp.T
-        S_w_class.append(S_i)  # 列为64 行为所有的feature
+        S_w_class.append(S_i)
 
     S_w = np.zeros((train_feats.shape[1], train_feats.shape[1]))
 
@@ -241,9 +273,9 @@ def fisher_projection(train_feats, train_labels):
 
 # TODO: Use the exisintg functions load_dataset and plot_conf_mats. Using a classifier (either one you write
 # or an imported sklearn function), perform classification on the fisher projected data.
-def classification(dataset = "taiji"):
+def classification(dataset = "taiji", classifier = "lda"):
 
-    train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset)
+    train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset, verbose = True)
 
     eigen_vectors = fisher_projection(train_feats, train_labels)
 
@@ -251,32 +283,25 @@ def classification(dataset = "taiji"):
 
     proj_test_feats = np.real(test_feats @ eigen_vectors)
 
-    clf = LinearDiscriminantAnalysis()
-
-    # clf = KNeighborsClassifier(n_neighbors = n_neighbors)
+    if classifier == "lda":
+        clf = LinearDiscriminantAnalysis()
+    if classifier == "knn":
+        clf = KNeighborsClassifier(n_neighbors = 5)
 
     clf.fit(proj_train_feats, train_labels)
 
     pred_train_labels = clf.predict(proj_train_feats)
     pred_test_labels = clf.predict(proj_test_feats)
 
-    plot_conf_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
+    print("Overall Train Classification Rate: ", np.round(accuracy_score(train_labels, pred_train_labels), 5))
+    print("Overall Test Classification Rate: ", np.round(accuracy_score(test_labels, pred_test_labels), 5))
 
-def dec_bound(dataset='taiji', indices=[0, 6]):
-    train_feats, train_labels, test_feats, test_labels = load_dataset(dataset=dataset)
-    eigen_vectors = fisher_projection(train_feats, train_labels)
-    dc_train_feats = train_feats[:, indices]
-    # dc_train_feats = np.real(train_feats @ eigen_vectors)#[:, indices]
-    dc_test_feats = test_feats[:, indices]
-    # dc_test_feats = np.real(test_feats @ eigen_vectors)#[:, indices]
-    clf = LinearDiscriminantAnalysis()
-    clf.fit(dc_train_feats, train_labels)
-    viz_desc_bounds(clf, dc_test_feats, test_labels, indices[0], indices[1])
+    plot_conf_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
+    plot_class_mats(dataset, train_labels=train_labels, pred_train_labels=pred_train_labels, test_labels=test_labels, pred_test_labels=pred_test_labels)
 
 def main():
     example_decision_boundary()
     classification()
-    dec_bound()
     
 if __name__ == '__main__':
     main()
