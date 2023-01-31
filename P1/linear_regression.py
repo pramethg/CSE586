@@ -285,7 +285,7 @@ def linear_regression(num_points = 50, calc_rmse = False, rmse_degree = 9):
 
 def main():
     # Iterate over various number of points to perform linear regression experiments.
-    for num_points in [50]:
+    for num_points in [50, 20, 500]:
         generateNoisyData(num_points = num_points)
         linear_regression(num_points = num_points, calc_rmse = True)
         plot_with_shadded_bar()

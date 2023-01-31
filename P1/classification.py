@@ -358,7 +358,7 @@ def main():
     example_decision_boundary()
     # Classifier takes in arguments:
     # classifier: "lda" or "knn".
-    classification(classifier = "knn")
+    classification(classifier = "lda")
     
 if __name__ == '__main__':
     main()
