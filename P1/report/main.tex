@@ -9,8 +9,8 @@
  
  % Metadata info
 \newcommand{\mytitle}{Project 1} 
-\newcommand{\mydate}{\today} 
-\newcommand{\myauthors}{Prameth Gaddale}
+\newcommand{\mydate}{January 30, 2023}
+\newcommand{\myauthors}{Prameth Gaddale (pqg5273@psu.edu)}
 
 % Setting Hyperref parameters
 \usepackage[
@@ -94,8 +94,6 @@ In this day and age, automation is crucial in various industries which involve l
 
 \tableofcontents
 % Break until the next page
-\vfill
-\pagebreak
 
 % SECTIONS
 
@@ -202,7 +200,7 @@ Hence, the distribution represented by the Gaussian distribution assumption gets
 \end{equation}
 
 %-------------------------------------------------------------------------
-\pagebreak
+
 \subsection{Maximum A Posteriori Estimator}
 Unlike \textit{Maximum Likelihood Estimation} where the posterior distribution on the ground truth was assumed to be from a Gaussian distribution, Maximum A Posteriori Estimator introduces a prior distribution on the weight vector \textbf{w}. That could be written mathematically as in \eqref{LN1}. Using the general Gaussian distribution equation and applying natural logarithm to \eqref{LNFINAL}.
 \begin{align}
@@ -251,13 +249,12 @@ Ignoring the constants (for simplicity as they would be equate to zero on taking
 We can observe that, this optimization criterion is equivalent to minimizing the regularized sum-of-squares error, with the parameter $\lambda = \alpha/\beta$.
 
 %-------------------------------------------------------------------------
-\pagebreak
 \subsection{Report}
 \subsubsection{Dataset}
 Given dataset (shown in \ref{fig: DATASET}) consists of input values($x$), ground truth values($y$), target values($t$) and random noise values($sigma$) added to ground truth values to produce targets.
 \begin{figure}[H]
     \centering
-    \includegraphics{results/gt_data.png}
+    \includegraphics[width=0.5\linewidth]{results/gt_data.png}
     \caption{Given training dataset consists of ($x$), ($y$), ($t$) and($sigma$) values.}
     \label{fig: DATASET}
 \end{figure}
@@ -269,7 +266,6 @@ Given dataset (shown in \ref{fig: DATASET}) consists of input values($x$), groun
     \item The generated datasamples are stored in \textit{.npz} format.
 \end{itemize}
 %-------------------------------------------------------------------------
-\pagebreak
 \subsubsection{Visualization}
 
 \subsubsection*{Maximum Likelihood Estimation}
@@ -333,7 +329,6 @@ In \ref{COMP}, comparisons of the Maximum Likelihood Model and the Maximum A Pos
     \label{COMP}
 \end{figure}
 %-------------------------------------------------------------------------
-\pagebreak
 \subsubsection{Summary}
 \begin{itemize}
     \item Predictions of both the \textit{Maximum Likelihood Estimation} and \textit{Maximum A Posterirori} models have been made and plotted.
@@ -377,10 +372,11 @@ The results for the regularized custom model with varying $\lnlambda$ values is 
 \end{figure}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{results/rmse-lnlambda.png}
+    \includegraphics[width=0.5\linewidth]{results/rmse-lnlambda.png}
     \caption{Root Mean Squared Error vs. $\ln \lambda$ plot.}
     \label{LNLAMBDARMSE}
 \end{figure}
+
 The plot \ref{LNLAMBDARMSE} represents the plot of Root Mean Squared Error vs $\ln\lambda$ values. For higher values of $\lnlambda$, models tends to underfit the training distribution and produces worse training error.
 %-------------------------------------------------------------------------
 \subsubsection{Varying Degree of Polynomial Order}
@@ -431,11 +427,6 @@ The table \ref{MAPWEIGHTS} represents the weights of the Maximum A Posteriori Mo
 \label{MAPWEIGHTS}
 \end{table}
 
-
-%-------------------------------------------------------------------------
-\subsubsection{Varying Number of Sample Points}
-Higher the data points used for fitting the polynomial, the model is able to perform better on capturing the underlying ground truth curve as shown in \ref{DATAP}.
-
 \begin{figure}[H]
     \centering
     \subfloat[ML Model, 20 Data Points]{
@@ -453,10 +444,13 @@ Higher the data points used for fitting the polynomial, the model is able to per
 \end{figure}
 
 %-------------------------------------------------------------------------
-\subsubsection{Curse of Dimensionality}
+\subsubsection{Varying Number of Sample Points}
+
+Higher the data points used for fitting the polynomial, the model is able to perform better on capturing the underlying ground truth curve as shown in \ref{DATAP}. \\
+The results in \ref{DATAP} suggest that the gap between the ML and MAP model gets reduced with the increase in the data set size. The ML model performs much better (in terms of the model fit, the 20 dataset size proved to have under-fitted the ML model).
 
 %-------------------------------------------------------------------------
-\pagebreak
+%-------------------------------------------------------------------------
 \section{Classification}
 Unlike regression problems, the objective of classification models is to assign input vector $\textbf{x}$ to one of \textit{K} discrete classes where $k = 1,...,K$. The \textit{decision regions} or \textit{decision boundaries} therefore represent the division of the input space, which are used to classify each input into disjoint classes.\\
 \textit{Fisher Linear Discriminant Analysis} is considered to be a part of the family of linear models used for classification, where the decision boundaries are linear functions of the provided input vector $\textbf{x}$.
@@ -507,22 +501,32 @@ Now, to find the most optimal \textbf{W} we find a criterion to minimize using t
     J(\textbf{W}) = Tr\left( (\textbf{W}\textbf{S}_W\textbf{W}^T)^{-1} (\textbf{W}\textbf{S}_B\textbf{W}^T) \right )
 \end{equation}
 Minimizing this criterion, $J(w)$ is done by finding the eigen-vectors of $W = S_W^{-1}S_B$. \\
-Hence, we can choose the eigenvectors that correspond to the $D'$ largest eigenvalues.
+Hence, we can choose the eigenvectors that correspond to the $D'$ largest eigenvalues. \\
+I've considered 8 most significant eigen values in the Code Implementation \textit{fisher\_projection}().
 
 %-------------------------------------------------------------------------
 \pagebreak
 \subsection{Report}
+Following is the report for the Fisher Projection based classification for the Taiji dataset.
 %-------------------------------------------------------------------------
 \subsubsection{Dataset}
 Given dataset is of \textit{Taiji Poses} with 7 different poses and one transitional pose.
+\begin{itemize}
+    \item The dataset is split between training and test sets.
+    \item The Figure \ref{TAIJI} represents the decision boundary of the given dataset without Fisher projection applied.
+\end{itemize}
 \begin{figure}[H]
     \centering
     \includegraphics{results/decision_boundary.png}
     \caption{Taiji Dataset Example Decision Boundary}
-    \label{fig:my_label}
+    \label{TAIJI}
 \end{figure}
 %-------------------------------------------------------------------------
+\pagebreak
 \subsubsection{Confusion Matrix}
+The confusion matrices for the training and test sets after applying Fisher projection and \textit{Linear Discriminant Analysis} classification.
+
+The diagonal elements of the confusion matrix represent the correct classifications, with the non-diagonal elements of the matric represents mis-classification with the rows representing the true labels of each class category and columns representing the predicted labels with respect to the various classes.
 \begin{figure}[H]
     \centering
     \subfloat[Taiji Training Data Confusion Matrix]{
@@ -532,9 +536,14 @@ Given dataset is of \textit{Taiji Poses} with 7 different poses and one transiti
       \includegraphics[width=0.6\linewidth]{results/taiji_test_confusion.png}}
     \hspace{0mm}
     \caption{Taiji Training and Test Confusion Matrices}
+    \label{TAIJICR}
 \end{figure}
 %-------------------------------------------------------------------------
+\pagebreak
 \subsubsection{Classification Rates}
+The classification rate confusion matrices for the training and test sets after applying Fisher projection and \textit{Linear Discriminant Analysis} classification.
+
+The matrix plots in \ref{TAIJICLR} as similar to the confusion matrices however, the elements in the matrix represent the per-class classification rates with respect to the 
 \begin{figure}[H]
     \centering
     \subfloat[Taiji Training Data Classification Rate Matrix]{
@@ -544,7 +553,10 @@ Given dataset is of \textit{Taiji Poses} with 7 different poses and one transiti
       \includegraphics[width=0.6\linewidth]{results/taiji_test_classification.png}}
     \hspace{0mm}
     \caption{Taiji Training and Test Classification Rate Matrices}
+    \label{TAIJICLR}
 \end{figure}
+
+The Table \ref{OCRATE} represents the overall classification rate data for various classifiers.
 
 \begin{table}[H]
 \centering
@@ -566,16 +578,20 @@ KNN: 10 Neighbors & 0.97324 & 0.88583 \\ \hline
 \end{table}
 
 %-------------------------------------------------------------------------
-\subsubsection{Analysis}
+\subsubsection{Analysis and Conclusion}
+\begin{itemize}
+    \item Performing the fisher projection on the given Taiji dataset through the use of 8 significant eigen vectors/eigen values has provided the classification confusion matrices as shown in Figure \ref{TAIJICR}.
+    \item It is observed that the Linear Discriminant Analysis has captured the classification pattern pretty well for all the classes except the Class-0 which represents the transitional pose.
+    \item Fisher projected data has provided benefits in terms of generalization for the classification. We observe in the classification rates for per-class in the Figure \ref{TAIJICLR} that the training and test errors are not that far-off except for the Class-0.
+    \item This suggests that performing Fisher projection prior to the Linear Discriminant Analysis classification has provided a good model fit.
+    \item This is evident in the overall classification rates of the LDA model in the Table \ref{OCRATE}. The overall training classification rate is found to be $0.95775$ and the overall test classification rate is found to be $0.93451$. Judging by that criterion, there isn't a large difference suggesting LDA model to have provided a reasonable model fit.
+    \item However, in the case of K-Nearest Neighbors classifier the model performed worse for lower k-values.
+    \item Looking at the overall classification rates for $k=3$, there is a huge difference between the training and test classification rates suggesting the model being hugely over-fitting the training dataset. The presence of very large training set error and low test set error suggests the issue of an over-fitted model.
+    \item However for higher values of k-values for the KNN classifier, the model tends to perform reasonably well compared to its lower k-value counterparts. Even though, the overall test classification rate of KNN with 10 neighbors being considered cannot match the potential of the LDA model with about $93.451\%$ overall test classification rate.
+\end{itemize}
 
 %-------------------------------------------------------------------------
-\subsubsection{Conclusion}
-
 %-------------------------------------------------------------------------
-\subsection{Extra Credit}
-
-%-------------------------------------------------------------------------
-\pagebreak
 \section{Central Limit Theorem}
 
 %-------------------------------------------------------------------------

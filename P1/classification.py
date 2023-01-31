@@ -20,6 +20,8 @@ file that you add code to.)
 
                 fisher_projection() : Takes the training features and training labels and calculates the significant Fisher projected eigen vectors.
 
+                classification() : Main classification function with KNN and LDA classifiers.
+
                 EXAMPLE FUNCTIONS:
                     example_decision_boundary() : An example of how to visualize the decision boundary of a classifier.
                     example_classification() : An example of performing the classification.
