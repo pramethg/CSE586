@@ -133,3 +133,4 @@ dmypy.json
 # Result Files
 P1/results/
 notebooks/results/
+*.zip
