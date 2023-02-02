@@ -7,8 +7,8 @@ TA: Shimian Zhang, 2023
 Your Details: (The below details should be included in every python 
 file that you add code to.)
 {
-    Name:
-    PSU Email ID:
+    Name: Prameth Gaddale
+    PSU Email ID: pqg5273@psu.edu
     Description: (A short description of what each of the functions you've written does.).
 }
 '''
