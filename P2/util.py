@@ -72,7 +72,7 @@ def split_data(data, label, sub_info, i):
     Args:
         data (numpy array): [NxM] vector of data to be split, where N is the number of samples and M is the number of features.
         label (numpy array): [N] vector of labels of the data.
-        sub_info (numpy array): [sxN] vector of subject information of the data where s is the number of subjects and N is the number of samples.
+        sub_info (numpy array): [Nx2] vector of subject information of the data where N is the number of samples.
         i (int): Test subject.
     Returns:
         train_data: Training data.
@@ -80,8 +80,11 @@ def split_data(data, label, sub_info, i):
         test_data: Test data.
         test_label: Test labels.
     """
-    test_inds = np.where(sub_info == i)[0]
-    train_inds = np.where(sub_info != i)[0]
+    # Get the indices of the test and train data
+    test_inds = np.where(sub_info[:, 0] == i)[0]
+    train_inds = np.where(sub_info[:, 0] != i)[0]
+
+    # Get the train and test data
     train_data = data[train_inds, :]
     train_label = label[train_inds]
     test_data = data[test_inds, :]

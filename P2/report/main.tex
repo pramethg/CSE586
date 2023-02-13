@@ -1,0 +1,154 @@
+\documentclass[12pt,twoside,a4paper]{article} 
+
+\usepackage{color,amssymb,amsmath,mathtools} 
+\usepackage{fullpage,caption, listings,clrscode,placeins}
+\usepackage{amsmath,bm}
+\usepackage{subfig}
+\usepackage{float}
+% \usepackage{graphicx}
+ 
+ % Metadata info
+\newcommand{\mytitle}{Project 2} 
+\newcommand{\mydate}{\today}
+\newcommand{\myauthors}{Prameth Gaddale (pqg5273@psu.edu)}
+
+% Setting Hyperref parameters
+\usepackage[
+	bookmarks,
+	bookmarksnumbered,
+	pdfpagemode={UseOutlines},
+	plainpages=false,
+	pdfpagelabels=true,
+	pdfauthor={\myauthors},
+	pdftitle={\mytitle},
+	pagebackref=true,
+	pdftex,
+	colorlinks=true,
+	linkcolor=red,
+	urlcolor={blue}, 
+	pagebackref=true]
+	{hyperref}
+
+\title{\mytitle}
+\author{\myauthors}
+\date{\mydate}
+
+% Some useful commands from CVPR
+\usepackage{xspace}
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi\xspace}
+\def\eg{\emph{e.g}\onedot} \def\Eg{\emph{E.g}\onedot}
+\def\ie{\emph{i.e}\onedot} \def\Ie{\emph{I.e}\onedot}
+\def\cf{\emph{c.f}\onedot} \def\Cf{\emph{C.f}\onedot}
+\def\etc{\emph{etc}\onedot} \def\vs{\emph{vs}\onedot}
+\def\wrt{w.r.t\onedot} \def\dof{d.o.f\onedot}
+\def\etal{\emph{et~al}\onedot}
+\makeatother
+
+
+\pagestyle{empty}
+\usepackage{fancyref,fancyhdr}
+%\usepackage[hmarginratio=1:1, top=2.0cm, bottom=5.0cm, left=1cm, right=1cm]{geometry}
+\setlength{\headheight}{14pt}
+\setlength{\headsep}{15pt}
+\setlength{\footskip}{50pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhf[HLE,HRO]{\footnotesize{\myauthors}}
+\fancyhf[HLO,HRE]{\footnotesize{\mydate}}
+\fancyhf[FLO,FRE]{\footnotesize{\mytitle}} 
+\fancyhf[FLE,FRO]{\thepage }
+
+
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps}
+
+% 
+\usepackage[numbers, sort&compress]{natbib}
+
+\usepackage[senames,dvipsnames,svgnames,table]{xcolor}
+
+\newenvironment{tightitemize} % Defines the tightitemize environment which modifies the itemize environment to be more compact
+{\vspace{-\topsep}\begin{itemize}\itemsep1pt \parskip0pt \parsep0pt}
+{\end{itemize}\vspace{-\topsep}} 
+
+% If you want to write proofs
+\newtheorem{claim}{Claim}[section]
+\newtheorem{lemma}{Lemma}[section]
+
+% Some useful packages (look at booktabs for good looking tables)
+\usepackage{subcaption,booktabs,placeins}
+
+%BEGIN THE DOCUMENT
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+
+
+
+\end{abstract}
+\vspace{1ex}
+
+\tableofcontents
+% Break until the next page
+
+% SECTIONS
+
+\section{Introduction}
+
+%-------------------------------------------------------------------------
+\section{Approach}
+
+%-------------------------------------------------------------------------
+\subsection{Filter Method}
+
+%-------------------------------------------------------------------------
+\subsection{Wrapper Method}
+
+%-------------------------------------------------------------------------
+\section{Report}
+
+%-------------------------------------------------------------------------
+\subsection{Flowchart of the Model Pipeline}
+
+%-------------------------------------------------------------------------
+\subsection{Histograms}
+
+%-------------------------------------------------------------------------
+\subsubsection{Most Discriminative Features}
+
+%-------------------------------------------------------------------------
+\subsubsection{Most Commonly Selected Features}
+
+%-------------------------------------------------------------------------
+\subsection{Classification Results}
+
+%-------------------------------------------------------------------------
+\subsubsection{No Filter, No Wrapper}
+
+%-------------------------------------------------------------------------
+\subsubsection{Filter, No Wrapper}
+
+%-------------------------------------------------------------------------
+\subsubsection{Filter, Wrapper}
+
+%-------------------------------------------------------------------------
+\subsection{Question: Dataset Size Sufficiency}
+
+%-------------------------------------------------------------------------
+\section{Conclusion}
+
+%-------------------------------------------------------------------------
+\section{Extra Credit}
+
+%-------------------------------------------------------------------------
+
+% BIBLIOGRAPHY
+{\small
+\bibliographystyle{IEEEtranN}
+\bibliography{mybib}}
+
+\end{document}

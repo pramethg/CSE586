@@ -54,6 +54,8 @@ def train(args):
         train_data, train_label, test_data, test_label = split_data(data, labels, sub_info, i)
 
         # TODO: Add data normalization here. Implement the code in the normalize_data function in util.py 
+        train_data, train_min, train_max = normalize_data(train_data)
+        test_data, test_min, test_max = normalize_data(test_data)
 
 
         # Perform feature filtering 
