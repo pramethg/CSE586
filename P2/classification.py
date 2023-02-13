@@ -129,7 +129,6 @@ def train(args):
 
     return
 
-
 # Feel free to edit/add to this function in any way you see fit. This provides the minimum
 # functionality required for the assignment.
 def visualize(args):
@@ -221,9 +220,8 @@ def visualize(args):
     filter_plot_info = np.zeros((num_feats, 2))
     filter_plot_info[:, 0] = np.arange(num_feats)
     filter_plot_info[:, 1] = selected_feats
-    filter_plot_filename = os.path.join(args.save_dir, 'plots', 'selected_feats.png')
-    plot_feat(filter_plot_info, feat_names, args.num_vis_feat, 'Most Frequently Selected Features', 
-        'Times Selected', filter_plot_filename)
+    filter_plot_file_name = "selected_feats.png"
+    plot_feat(filter_plot_info, feat_names, args.num_vis_feat, 'Most Commonly Selected Features', 'Num. Times Selected', filter_plot_file_name, args.save_dir)
 
     # Average filter scores
     avg_filter_scores = np.zeros(num_feats)
@@ -236,9 +234,9 @@ def visualize(args):
     avg_filter_plot_info = np.zeros((num_feats, 2))
     avg_filter_plot_info[:, 0] = np.arange(num_feats)
     avg_filter_plot_info[:, 1] = avg_filter_scores
-    avg_filter_plot_filename = os.path.join(args.save_dir, 'plots', 'avg_filter_scores.png')
-    plot_feat(avg_filter_plot_info, feat_names, args.num_vis_feat, 'Average Filter Scores',
-        'Filter Score', avg_filter_plot_filename)
+    avg_filter_plot_filename = 'avg_filter_scores.png'
+    plot_feat(avg_filter_plot_info, feat_names, args.num_vis_feat, 'Average Selected Features', 'Average Score.', avg_filter_plot_filename, args.save_dir)
+    
 
     return
 

@@ -93,14 +93,14 @@ def split_data(data, label, sub_info, i):
 
 def plot_feat(feat_stat, feat_name, num_on_bar, title, xlabel, filename, save_dir='results'):
     """
-    Plots the feature statistics.
+    Plots the features and their scores or number of times and their scores.
     Args:
         feat_stat ([nx2] numpy array): Feature statistics where n is the number of features and 
             the second dim. is feature number and score.
         feat_name (list): all feature names.
         num_on_bar (int): Number of features to be shown on the bar.
         title (str): Title.
-        xlabel (str): X-axis label.
+        xlabel(str): X-axis label.
         filename (str): Output filename.
     """
     if os.path.exists(save_dir) is False:
@@ -110,17 +110,15 @@ def plot_feat(feat_stat, feat_name, num_on_bar, title, xlabel, filename, save_di
         num_on_bar = feat_stat.shape[0]
     
     fig, ax = plt.subplots()
-    ax.bar(np.arange(num_on_bar), feat_stat[:num_on_bar, 1])
-    ax.set_xticks(np.arange(num_on_bar))
-    ax.set_xticklabels(feat_stat[:num_on_bar, 0], rotation=90)
-    ax.set_yticks(np.arange(0, num_on_bar, 1))
-    ax.set_yticklabels(feat_name[:num_on_bar], rotation=0)
-    ax.set_ylabel('Features')
-    ax.set_ylim([0.5, num_on_bar + 0.5])
+    # Feature stats on the y-axis and feature names on the x-axis
+    ax.barh(np.arange(num_on_bar), feat_stat[:num_on_bar, 1])
+    ax.set_yticks(np.arange(num_on_bar))
+    ax.set_yticklabels(feat_name[feat_stat[:num_on_bar, 0].astype(int)])
+    ax.invert_yaxis()
     ax.set_xlabel(xlabel)
     ax.set_title(title)
     fig.tight_layout()
-    fig.savefig(os.path.join(save_dir, 'plots', 'feature_stats.png'))
+    fig.savefig(os.path.join(save_dir, 'plots', filename))
     plt.close(fig)
 
 def sub_stats(sub_pred, labels, num_forms):
@@ -142,14 +140,13 @@ def sub_stats(sub_pred, labels, num_forms):
         if pred == label:
             sub_class_correct[label] += 1
 
-    
 
     sub_classes = sub_class_correct / sub_class_total
     sub_classes[np.isnan(sub_classes)] = 0.
 
     # Get conf matrix
-    conf_mat = confusion_matrix(labels, sub_pred)
+    gt_label = np.arange(num_forms)
+    conf_mat = confusion_matrix(labels, sub_pred, labels=gt_label, normalize='all')
     conf_mat[np.isnan(conf_mat)] = 0.
-    conf_mat = conf_mat / np.sum(conf_mat, axis=1, keepdims=True)
 
     return sub_classes, conf_mat
