@@ -74,7 +74,7 @@ def train(args):
         test_data = test_data[:, selected_inds]
 
         # Train and evaluate the model
-        model = KNN(n_neighbors=5) # You are free to use any classifier/classifier configuration
+        model = KNN(n_neighbors=10) # You are free to use any classifier/classifier configuration
         model.labels_ = np.unique(train_label)
         model.fit(train_data, train_label)
 
