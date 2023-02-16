@@ -30,7 +30,7 @@ def train(args):
     Perform the feature selection
     """
     data, labels, sub_info, form_names, feat_names  = load_dataset()
-    num_subs = len(np.unique(sub_info[:, 0])) + 1
+    num_subs = len(np.unique(sub_info[:, 0]))
     num_feats = data.shape[1]
     num_forms = len(form_names) + 1
     filter_feat_count = args.filter_feat_count
@@ -46,17 +46,16 @@ def train(args):
         if not os.path.exists(os.path.join(args.save_dir, 'stats')):
             os.makedirs(os.path.join(args.save_dir, 'stats'))
 
-    for i in range(1, num_subs):
-        print(f'Starting training and evaluation for subject {i}...')
+    for i in range(0, num_subs):
+        print(f'Starting training and evaluation for subject {i+1}...')
         start = time.time()
 
-        # Split and normalize data
-        train_data, train_label, test_data, test_label = split_data(data, labels, sub_info, i)
+        # Split the data
+        train_data, train_label, test_data, test_label = split_data(data, labels, sub_info, i+1)
 
         # TODO: Add data normalization here. Implement the code in the normalize_data function in util.py 
         train_data, train_min, train_max = normalize_data(train_data)
         test_data, test_min, test_max = normalize_data(test_data)
-
 
         # Perform feature filtering 
         if num_feats < filter_feat_count:
@@ -98,17 +97,17 @@ def train(args):
         overall_test_mat = overall_test_mat + (1/num_subs) * sub_conf_mat_test
 
         # Print results
-        print(f'Training accuracy for subject {i}: {train_acc}')
-        print(f'Testing accuracy for subject {i}: {test_acc}')
+        print(f'Training accuracy for subject {i+1}: {train_acc}')
+        print(f'Testing accuracy for subject {i+1}: {test_acc}')
 
         # Save results
         if args.save_results:
-            sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i}.npz')
+            sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i+1}.npz')
             np.savez(sub_file, filter_feat_count=filter_feat_count, filter_inds=filter_inds, filter_scores=filter_scores,  
                 selected_inds=selected_inds, train_acc=train_acc, test_acc=test_acc, sub_classes_train=sub_classes_train,
                 sub_classes_test=sub_classes_test, sub_conf_mat_train=sub_conf_mat_train, sub_conf_mat_test=sub_conf_mat_test)
 
-        print(f"Time taken for subject {i}: {time.time() - start} seconds")
+        print(f"Time taken for subject {i+1}: {time.time() - start} seconds")
         print('------------------------------------')
 
     # overall statistics
@@ -136,7 +135,7 @@ def visualize(args):
     Visualize the results
     """
     data, labels, sub_info, form_names, feat_names = load_dataset()
-    num_subs = len(np.unique(sub_info[:, 0])) + 1
+    num_subs = len(np.unique(sub_info[:, 0])) 
     num_feats = data.shape[1]
     num_forms = len(form_names) + 1
     form_names = np.insert(form_names, 0, 'Transition')
@@ -158,9 +157,9 @@ def visualize(args):
     ax.set_ylabel('Accuracy')
     ax.set_xlabel('Subject')
     ax.set_title('Subject-wise training and testing accuracies')
-    ax.set_xticks(np.arange(1, num_subs)+0.35/2)
-    ax.set_xticklabels(np.arange(1, num_subs - 0.35, dtype=int))
-    ax.set_xlim([0.5, num_subs ])
+    # Make the x-axis labels start from 1
+    ax.set_xticks(np.arange(num_subs))
+    ax.set_xticklabels(np.arange(1, num_subs+1))
     ax.legend()
     fig.tight_layout()
     plt.savefig(os.path.join(args.save_dir, 'plots', 'subject_wise_acc.png'))
@@ -212,7 +211,7 @@ def visualize(args):
 
     # Most commonly selected features
     selected_feats = np.zeros(num_feats)
-    for i in range(1, num_subs):
+    for i in range(0, num_subs):
         sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i}.npz')
         sub_results = np.load(sub_file)
         selected_feats[sub_results['selected_inds']] += 1
@@ -225,8 +224,8 @@ def visualize(args):
 
     # Average filter scores
     avg_filter_scores = np.zeros(num_feats)
-    for i in range(1, num_subs):
-        sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i}.npz')
+    for i in range(0, num_subs):
+        sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i+1}.npz')
         sub_results = np.load(sub_file)
         avg_filter_scores += sub_results['filter_scores']
 

@@ -4,6 +4,6 @@
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Project 1    | Linear Regression, Maximum Likelihood Estimation, Maximum-A-Posteriori Estimation, Fisher Projection, Classification, Central Limit Theorem. |
 | Project 2    | Feature Selection: Filter and Wrapper Implementation.                                                                                        |
-| Project 3    |                                                                                                                                              |
+| Project 3    | Deep Learning                                                                                                                                |
 | Project 4    |                                                                                                                                              |
 | Term Project |                                                                                                                                              |
