@@ -30,6 +30,8 @@ def arg_parse():
     parser.add_argument('--save_results', action='store_true', help='Whether to save results')
     parser.add_argument('--save_dir', type=str, default='results', help='Directory to save results')
     parser.add_argument('--do_plot', action='store_true', help='Whether to plot results')
+    parser.add_argument('--no_fw', action='store_true', help='No filter and no wrapper configuration')
+    parser.add_argument('--no_w', action='store_true', help='No wrapper configuration')
     return parser.parse_args()
 
 def load_dataset(data_path='data'):

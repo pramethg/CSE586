@@ -62,13 +62,19 @@ def train(args):
             filter_feat_count = num_feats
 
         # TODO: Implement the filter method. 
-        filter_inds, filter_scores = filter_method(train_data, train_label)
-        train_data = train_data[:, filter_inds[:filter_feat_count]]
-        test_data = test_data[:, filter_inds[:filter_feat_count]]
+        if args.no_fw:
+            filter_inds, filter_scores = np.arange(train_data.shape[1]), np.zeros(train_data.shape[1])
+        else:
+            filter_inds, filter_scores = filter_method(train_data, train_label)
+            train_data = train_data[:, filter_inds[:filter_feat_count]]
+            test_data = test_data[:, filter_inds[:filter_feat_count]]
 
         # TODO: Implement the forward selection method.
         # Perform feature selection
-        selected_inds = forward_selection(train_data, train_label)
+        if args.no_fw or args.no_w:
+            selected_inds = np.arange(train_data.shape[1])
+        else:
+            selected_inds = forward_selection(train_data, train_label)
         train_data = train_data[:, selected_inds]
         test_data = test_data[:, selected_inds]
 
@@ -99,6 +105,7 @@ def train(args):
         # Print results
         print(f'Training accuracy for subject {i+1}: {train_acc}')
         print(f'Testing accuracy for subject {i+1}: {test_acc}')
+        print(f'Number of features: {train_data.shape[1]}')
 
         # Save results
         if args.save_results:

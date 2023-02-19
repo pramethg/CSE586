@@ -95,21 +95,72 @@ This project primarily deals with feature subset selection for the classificatio
 \vspace{1ex}
 
 \tableofcontents
-
+\pagebreak
 % SECTIONS
-
 \section{Introduction}
-The last project followed an approached where vanilla classification problem was implemented through the use of \textit{Fisher Linear Discriminant Analysis}, which would not necessarily correspond to complexity involved by higher number of feature dimensions. The approach previously taken in the \textit{Project-1} didn't involve any data normalization or feature engineering steps which are essential pre-processing steps for the data to be involved with before being used for making crucial classification decisions/predictions.
+The last project followed an approached where vanilla classification problem was implemented through the use of \textit{Fisher Linear Discriminant Analysis}, which would not necessarily correspond to complexity involved by higher number of feature dimensions. 
 
-\textit{Feature Engineering}, or simply \textit{Feature Selection} are steps followed before fitting the training the final regression or classification model to improve the performance through the use of relevant features. Modern machine learning datasets contain thousands of features corresponding to the dataset used. However, each of them correspond to either useful/useless category of features used for training the parameters of the machine learning model. For example, in the given dataset there are features that don't have any variance, or have a constant value for all the training examples. It would be wise to exclude the feature in that case to gain more leverage in overall computational efficiency, storage and algorithmic efficiency.
+The approach previously taken in the \textit{Project-1} didn't involve any data normalization or feature engineering steps which are essential pre-processing steps for the data to be involved with before being used for making crucial classification decisions/predictions.
+
+\textit{Feature Selection} which is the part of the family of \textit{Feature Engineering} methods which involve the steps followed before fitting the training the final regression or classification model to improve the performance through the use of relevant features. Modern machine learning datasets contain thousands of features corresponding to the dataset used. 
+
+However, each of them correspond to either useful/useless category of features used for training the parameters of the machine learning model. For example, in the given dataset there are features that don't have any variance, or have a constant value for all the training examples. It would be wise to exclude the feature in that case to gain more leverage in overall computational efficiency, storage and algorithmic efficiency.
 %-------------------------------------------------------------------------
 \section{Approach}
 
+\textit{Feature Selection} in a broad way consists of choosing a proper subset of features of all the given features based on some defined criterion. Feature Selection operations performed in this project involve the use of:
+\begin{itemize}
+    \item Filter Method
+    \item Wrapper Method
+\end{itemize}
+Both of the methods differ based upon the optimization criterion set by the objective function.
+
+\textit{Filter Methods} select the best features based on their discrimination potential through the use of a chosen metric. There is no actually iterative optimization taking place in this algorithms, however, the features are selected based of metric ranking. 
+
+On the other hand, \textit{Wrapper Methods} select the best feature subset through a criteria set by solving a classification task on the subset iteratively through a search algorithm.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{data.png}
+    \caption{PSU-TMM100 Dataset (A). The Video Data with 17 joints. (B). The left-right foot pressure sensor heatmap.}
+    \label{fig: DATA}
+\end{figure}
+
 \subsection{Data}
 
+The given dataset is PSU-TMM100 (Taiji) based on human-sequence forms, rendered using 3D motion capture devices from various crucial body parts and foot pressure sensors. 
+
+The 3D body joints from MoCAP captures 17 joints and the foot pressure data consists 1910 elements as shown in \ref{fig: DATA}. The total number of features come out to be 1961 for each observation.
+\subsubsection*{Data Splitting Strategy}
+The training process involves the \textit{Leave One Subject Out} strategy during classification to enable testing with pseudo-unseen data and resembles the prediction based off in a real scene setting. 
 
 %-------------------------------------------------------------------------
 \subsection{Filter Method}
+
+Feature selection filtering is a technique used to select a relevant subset of features from a larger given set of features. In a way, reducing the use of irrelevant and redundant features in the given data. The reduced redundancy has help find gains in the efficiency of the overall classification process. The goal of feature selection is to improve the model performance and reduce the risk of over-fitting \cite{statistical}.
+
+Filter methods usually evaluate each of the given feature independently and assign a corresponding score to that feature based on its relevance to the target vector. Features that score below a certain threshold are then removed from consideration, or can be sorted out by taking a set of features from thr top. The commonly used filter methods include:
+
+\begin{itemize}
+    \item Variance Ratio
+    \item Augmented Variance Ratio
+    \item Minimum Redundancy Maximum Relevance
+\end{itemize}
+
+The metric implemented in this \textit{Report} is the \textit{Variance Ratio} which is defined as in \eqref{1}
+
+\begin{equation}\label{1}
+    VR(F) = \frac{Var(S_F)}{\frac{1}{C}\sum_{k = 1,...,C} Var_k(S_k)}
+\end{equation}
+
+\begin{itemize}
+    \item $VR(F)$ : Variance Ratio Score for the Feature $F$
+    \item $Var(S_F)$: Within class variance
+    \item $Var_k(S_F)$: Within class variance of the class \textit{k}
+    \item $C$: Total number of classes.
+\end{itemize}
+
+Filter approaches are generally easy to implement and computationally efficient, making them a popular choice for feature selection in large data sets.
 
 \begin{algorithm}
 \caption{Filter Method Pseudocode}\label{alg:fmp}
@@ -124,20 +175,27 @@ The last project followed an approached where vanilla classification problem was
 %-------------------------------------------------------------------------
 \subsection{Wrapper Method}
 
+Wrapper methods typically employ a search algorithm to select a subset of features based on their impact on model performance. Unlike filter methods, which evaluate features independently, wrapper methods considers the interdependence between the features and the model.
+
+Generally the wrapper methodology involves defining the target vector and a set of potential features (predictors). Upon that, we'd define a search algorithm procedure that iteratively adds or removes features to/from the model. Subsequently, a machine learning model is trained using a subset of features and the performance of the model is evaluated either through the use of training data or validation data. Consequently, we use the performance metric to guide the search algorithm in selecting the best subset of features. Upon finding a good enough set of features from the search procedure, we train a classification model using the selected subset of features.
+
+\begin{algorithm}
+\caption{Wrapper Method Pseudocode}\label{alg:fmp}
+\begin{algorithmic}
+
+\Require $n \geq 0$
+
+\vspace{-20pt}
+\end{algorithmic}
+\end{algorithm}
+
 %-------------------------------------------------------------------------
 \section{Report}
 
 %-------------------------------------------------------------------------
 \subsection{Flowchart of the Model Pipeline}
 
-%-------------------------------------------------------------------------
-\subsection{Histograms}
 
-%-------------------------------------------------------------------------
-\subsubsection{Most Discriminative Features}
-
-%-------------------------------------------------------------------------
-\subsubsection{Most Commonly Selected Features}
 
 %-------------------------------------------------------------------------
 \subsection{Classification Results}
