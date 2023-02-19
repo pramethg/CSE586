@@ -212,7 +212,7 @@ def visualize(args):
     # Most commonly selected features
     selected_feats = np.zeros(num_feats)
     for i in range(0, num_subs):
-        sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i}.npz')
+        sub_file = os.path.join(args.save_dir, 'stats', f'subject_{i+1}.npz')
         sub_results = np.load(sub_file)
         selected_feats[sub_results['selected_inds']] += 1
 
