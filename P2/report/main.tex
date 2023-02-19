@@ -1,4 +1,3 @@
-
 \documentclass[12pt,twoside,a4paper]{article} 
 
 \usepackage{color,amssymb,amsmath,mathtools} 
@@ -6,6 +5,8 @@
 \usepackage{amsmath,bm}
 \usepackage{subfig}
 \usepackage{float}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 % \usepackage{graphicx}
  
  % Metadata info
@@ -94,17 +95,31 @@ This project primarily deals with feature subset selection for the classificatio
 \vspace{1ex}
 
 \tableofcontents
-% Break until the next page
 
 % SECTIONS
 
 \section{Introduction}
+The last project followed an approached where vanilla classification problem was implemented through the use of \textit{Fisher Linear Discriminant Analysis}, which would not necessarily correspond to complexity involved by higher number of feature dimensions. The approach previously taken in the \textit{Project-1} didn't involve any data normalization or feature engineering steps which are essential pre-processing steps for the data to be involved with before being used for making crucial classification decisions/predictions.
 
+\textit{Feature Engineering}, or simply \textit{Feature Selection} are steps followed before fitting the training the final regression or classification model to improve the performance through the use of relevant features. Modern machine learning datasets contain thousands of features corresponding to the dataset used. However, each of them correspond to either useful/useless category of features used for training the parameters of the machine learning model. For example, in the given dataset there are features that don't have any variance, or have a constant value for all the training examples. It would be wise to exclude the feature in that case to gain more leverage in overall computational efficiency, storage and algorithmic efficiency.
 %-------------------------------------------------------------------------
 \section{Approach}
 
+\subsection{Data}
+
+
 %-------------------------------------------------------------------------
 \subsection{Filter Method}
+
+\begin{algorithm}
+\caption{Filter Method Pseudocode}\label{alg:fmp}
+\begin{algorithmic}
+
+\Require $n \geq 0$
+
+\vspace{-20pt}
+\end{algorithmic}
+\end{algorithm}
 
 %-------------------------------------------------------------------------
 \subsection{Wrapper Method}
@@ -128,13 +143,153 @@ This project primarily deals with feature subset selection for the classificatio
 \subsection{Classification Results}
 
 %-------------------------------------------------------------------------
-\subsubsection{No Filter, No Wrapper}
+\subsubsection{Baseline Model (No Filter, No Wrapper)}
+As a baseline measure for comparison purposes, a model without feature selection of filtering and wrapping methodology was implemented. The data used for the classification involved the use of all the $1961$ features for train and test phases. The classification model used for training and inference was \textit{K-Nearest Neighbors Classifier} from \textit{Scikit-Learn} with $k=10$.
+
+\subsubsection*{Classification Rates}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{nfnw/overall_per_class_train.png}
+    \caption{Train}
+    \label{fig: NFW1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{nfnw/overall_per_class_test.png}
+    \caption{Test}
+    \label{fig: NFW2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{nfnw/subject_wise_acc.png}
+    \caption{Comparison}
+    \label{fig: NFW3}
+\end{figure}
+
+\subsubsection*{Confusion Matrix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{nfnw/overall_train_conf_mat.png}
+    \caption{Train}
+    \label{fig: NFW4}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{nfnw/overall_test_conf_mat.png}
+    \caption{Test}
+    \label{fig: NFW5}
+\end{figure}
 
 %-------------------------------------------------------------------------
 \subsubsection{Filter, No Wrapper}
 
+The filtering method with Variance Ratio was implemented and the top 100 features were considered. The processed training data was used to fit the \textit{K-Nearest Neighbors Classifier} from \textit{Scikit-Learn} with $k=10$.
+
+\subsubsection*{Classification Rates}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{fnw/overall_per_class_train.png}
+    \caption{Train}
+    \label{fig: F1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{fnw/overall_per_class_test.png}
+    \caption{Test}
+    \label{fig: F2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{fnw/subject_wise_acc.png}
+    \caption{Comparison}
+    \label{fig: F3}
+\end{figure}
+
+\subsubsection*{Confusion Matrix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{fnw/overall_train_conf_mat.png}
+    \caption{Train}
+    \label{fig: F4}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{fnw/overall_test_conf_mat.png}
+    \caption{Test}
+    \label{fig: F5}
+\end{figure}
+
 %-------------------------------------------------------------------------
 \subsubsection{Filter, Wrapper}
+
+The filtering method with Variance Ratio as the measure was implemented. The top 100 features passed through the wrapper method with Sequential Forward Selection. The processed training data was used to fit the \textit{K-Nearest Neighbors Classifier} from \textit{Scikit-Learn} with $k=10$.
+
+\subsubsection*{Classification Rates}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/overall_per_class_train.png}
+    \caption{Train}
+    \label{fig: FW1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/overall_per_class_test.png}
+    \caption{Test}
+    \label{fig: FW2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/subject_wise_acc.png}
+    \caption{Comparison}
+    \label{fig: FW3}
+\end{figure}
+
+\subsubsection*{Confusion Matrix}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{results/overall_train_conf_mat.png}
+    \caption{Train}
+    \label{fig: FW4}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{results/overall_test_conf_mat.png}
+    \caption{Test}
+    \label{fig: FW5}
+\end{figure}
+
+\subsubsection*{Most Discriminative Features: Filter}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/selected_feats.png}
+    \caption{Filter}
+    \label{fig: FW6}
+\end{figure}
+
+\subsubsection*{Most Commonly Selected Features: Wrapper}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{results/avg_filter_scores.png}
+    \caption{Filter}
+    \label{fig: FW7}
+\end{figure}
 
 %-------------------------------------------------------------------------
 \subsection{Question: Dataset Size Sufficiency}
@@ -144,7 +299,8 @@ This project primarily deals with feature subset selection for the classificatio
 
 %-------------------------------------------------------------------------
 \section{Extra Credit}
-
+Here are my solutions for the \textbf{Extra Credit} section.
+\subsection{Ensemble Learning}
 %-------------------------------------------------------------------------
 
 % BIBLIOGRAPHY

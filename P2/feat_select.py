@@ -27,10 +27,12 @@ def forward_selection(train_data, train_labels):
         selected_inds (numpy array): a [1xK] vector containing the indices of features
             selected in forward selection. K is the # of feats choosen before selection was terminated.
     """
+    # Store the number of features present in train_data
     filter_feat_count = train_data.shape[1]
+    # Initialize the selected indices of the features with an empty array
     selected_inds = np.array([], dtype = np.int16)
-    train_acc_arr = []
-    for feat in range(filter_feat_count):
+    # feat-outer iterates over the range of the outer feat count
+    for feat_outer in range(filter_feat_count):
         clf = LinearDiscriminantAnalysis()
         selected_inds = np.append(selected_inds, feat)
         clf.fit(train_data[:, selected_inds], train_labels)
