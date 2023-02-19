@@ -30,14 +30,14 @@ def forward_selection(train_data, train_labels):
     filter_feat_count = train_data.shape[1]
     selected_inds = np.array([], dtype = np.int16)
     train_acc_arr = []
-    for feat in range(filter_feat):
+    for feat in range(filter_feat_count):
         clf = LinearDiscriminantAnalysis()
         selected_inds = np.append(selected_inds, feat)
         clf.fit(train_data[:, selected_inds], train_labels)
-        pred_labels = clf.perdict(train_data[:, selected_inds])
+        pred_labels = clf.predict(train_data[:, selected_inds])
         train_acc = np.sum(pred_labels == train_labels) / len(train_labels)
-        train_acc_arr.append(train_arr)
-        if len(train_acc_arr) >= 2:
+        train_acc_arr.append(train_acc)
+        if len(train_acc_arr) < 2:
             if train_acc_arr[feat] < 0.25:
                 selected_inds = selected_inds[:-1]
         else:
