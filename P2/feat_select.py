@@ -32,21 +32,42 @@ def forward_selection(train_data, train_labels):
     # Store the number of features present in train_data
     filter_feat_count = train_data.shape[1]
     # Initialize the selected indices of the features with an empty array
-    selected_inds = np.array([], dtype = np.int16)
-    # feat-outer iterates over the range of the outer feat count
+    selected_inds = np.array([], dtype = np.int32)
+    # Linear Discriminant Analysis classifier is used for the SFS algorithm process
+    clf = LinearDiscriminantAnalysis()
+    acc_threshold = 0.8
+    # feat_outer iterates over the range of the outer feat count
     for feat_outer in range(filter_feat_count):
-        clf = LinearDiscriminantAnalysis()
-        selected_inds = np.append(selected_inds, feat)
-        clf.fit(train_data[:, selected_inds], train_labels)
-        pred_labels = clf.predict(train_data[:, selected_inds])
-        train_acc = np.sum(pred_labels == train_labels) / len(train_labels)
-        train_acc_arr.append(train_acc)
-        if len(train_acc_arr) < 2:
-            if train_acc_arr[feat] < 0.25:
-                selected_inds = selected_inds[:-1]
-        else:
-            if train_acc_arr[-1] - train_acc_arr[-2] < 0.0005:
-                selected_inds = selected_inds[:-1]
+        # Initialize the local accuracy in the loop and the temporary feature for the iteration process.
+        local_acc = 0
+        temp_feat = 0
+        # feat_inner iterates over the range of the inner feat count
+        for feat_inner in range(filter_feat_count):
+            # return the looped over selected indices if the accuracy is over the specifed threshold.
+            print(selected_inds)
+            if local_acc > acc_threshold:
+                return selected_inds
+            # if the existing feat in feat_inner is present, continue looping over the range
+            if feat_inner in selected_inds:
+                continue
+            # stack the selected indices of the training data and the current temporary feature in the inner loop
+            # temp_feat_arr = train_data[:, feat_inner].reshape(-1,1)
+            temp_train_set = np.hstack((train_data[:, selected_inds], train_data[:, feat_inner].reshape(-1,1)))
+            # train and evaluate the classifer with the stacked data
+            clf.labels_ = np.unique(train_labels)
+            clf.fit(temp_train_set, train_labels)
+            # predictions with the temporary set from the classifier
+            temp_pred = clf.predict(temp_train_set)
+            # compute the training accuracy, from the classification.py file
+            temp_train_acc = np.sum(temp_pred == train_labels) / len(train_labels)
+            # if the temporary accuracy computed is greater than the locally looped accuracy:
+            if temp_train_acc > local_acc:
+                # inner feature is assigned to the temporary features
+                temp_feat = feat_inner
+                # and temporary training accuracy is assigned to the local accuracy variable
+                local_acc = temp_train_acc
+        # the temporary feature is then appended to the selected indices list
+        selected_inds = np.append(selected_inds, temp_feat)
     return selected_inds
 
 # TODO: Implement the filtering method.
