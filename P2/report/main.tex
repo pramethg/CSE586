@@ -98,7 +98,7 @@ This project primarily deals with feature subset selection for the classificatio
 \pagebreak
 % SECTIONS
 \section{Introduction}
-The last project followed an approached where vanilla classification problem was implemented through the use of \textit{Fisher Linear Discriminant Analysis}, which would not necessarily correspond to complexity involved by higher number of feature dimensions. 
+The last project followed an approached where vanilla classification problem was implemented through the use of \textit{Fisher Linear Discriminant Analysis}, which would not necessarily correspond to complexity involved by higher number of feature dimensions \cite{ChrisPRML}.
 
 The approach previously taken in the \textit{Project-1} didn't involve any data normalization or feature engineering steps which are essential pre-processing steps for the data to be involved with before being used for making crucial classification decisions/predictions.
 
@@ -160,17 +160,17 @@ The metric implemented in this \textit{Report} is the \textit{Variance Ratio} wh
     \item $C$: Total number of classes.
 \end{itemize}
 
-Filter approaches are generally easy to implement and computationally efficient, making them a popular choice for feature selection in large data sets.
+Filter approaches are generally easy to implement and computationally efficient, making them a popular choice for feature selection in large data sets. We represent the variance ratio for a particular feature to be the ratio of the inter class variance contained in that feature to the ratio of the mean of the intra class variances for all the classes. Therefore, a larger value of the variance ratio would indicate a more desirable feature with the highest variance ratio feature being the most desirable one. \\
 
-\begin{algorithm}
-\caption{Filter Method Pseudocode}\label{alg:fmp}
-\begin{algorithmic}
-
-\Require $n \geq 0$
-
-\vspace{-20pt}
-\end{algorithmic}
-\end{algorithm}
+\subsubsection*{Filter Method Algorithm}
+The algorithm of the Filter Method is given by,
+\begin{itemize}
+    \item Consider all the given features, $F$ in the Train set.
+    \item Ensuring the filter feature count, $filter\_feature\_count$ to be less than total dimensions, start iterating over all the features.
+    \item Compute the variance, $Var(F)$ of each feature, and compute the ratio with the help of per-class variance $Var_k(S_F)$.
+    \item Receive the indices by sorting the variance scores computed from the previous step.
+    \item Hence, we can get the top-100 features from the sorted list indices which represent the filtering method features.
+\end{itemize}
 
 %-------------------------------------------------------------------------
 \subsection{Wrapper Method}
@@ -179,24 +179,38 @@ Wrapper methods typically employ a search algorithm to select a subset of featur
 
 Generally the wrapper methodology involves defining the target vector and a set of potential features (predictors). Upon that, we'd define a search algorithm procedure that iteratively adds or removes features to/from the model. Subsequently, a machine learning model is trained using a subset of features and the performance of the model is evaluated either through the use of training data or validation data. Consequently, we use the performance metric to guide the search algorithm in selecting the best subset of features. Upon finding a good enough set of features from the search procedure, we train a classification model using the selected subset of features.
 
-\begin{algorithm}
-\caption{Wrapper Method Pseudocode}\label{alg:fmp}
-\begin{algorithmic}
+\subsubsection*{Optimization Criterion}
+    
 
-\Require $n \geq 0$
-
-\vspace{-20pt}
-\end{algorithmic}
-\end{algorithm}
+\subsubsection*{Wrapper Method Algorithm}
+The algorithm of the Wrapper method through the use of Sequential Forward Selection is given by,
+\begin{itemize}
+    \item Initially, consider an empty set of the features, and store the complete set of features.
+\end{itemize}
 
 %-------------------------------------------------------------------------
 \section{Report}
 
 %-------------------------------------------------------------------------
-\subsection{Flowchart of the Model Pipeline}
+\subsection{Model Pipeline}
+\begin{itemize}
+    \item The given data was first normalized with respect to the minimum and maximum values in the design matrix. Hence, the range is normalized to be [0,1].
+    \item After the data normalization part, the number of features from the filter method is specified and the filtering method is run with the criterion of Variance Ratio.
+    \item In our case, we pass all the 1961 features and receive the 100 selected features sorted based on the variance score and their associated corresponding variance scores.
+    \item Upon receiving the filtered features, we implement the wrapper method with sequential forward selection algorithm for searching the relevant features based on the classification accuracy on the linear discriminant classifier.
+    \item Then the features received from the wrapper method are used to train a K-Nearest Neighbor classifier with $k=10$.
+\end{itemize}
 
+The schematic of the model pipeline is shown in .
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{pipeline.png}
+    \caption{Model Pipeline}
+    \label{fig: NFW1}
+\end{figure}
 
+\pagebreak
 %-------------------------------------------------------------------------
 \subsection{Classification Results}
 
@@ -205,25 +219,49 @@ Generally the wrapper methodology involves defining the target vector and a set 
 As a baseline measure for comparison purposes, a model without feature selection of filtering and wrapping methodology was implemented. The data used for the classification involved the use of all the $1961$ features for train and test phases. The classification model used for training and inference was \textit{K-Nearest Neighbors Classifier} from \textit{Scikit-Learn} with $k=10$.
 
 \subsubsection*{Classification Rates}
-
+The classification model is not generalizing well over the test set as being trained on the wide variety of features. Its evident from the figures of the per class training and test set accuracies.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{nfnw/overall_per_class_train.png}
-    \caption{Train}
+    \includegraphics[width=0.8\linewidth]{nfnw/overall_per_class_train.png}
+    \caption{Training Set Confusion Matrix: No Filter, No Wrapper}
     \label{fig: NFW1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{nfnw/overall_per_class_test.png}
-    \caption{Test}
+    \includegraphics[width=0.8\linewidth]{nfnw/overall_per_class_test.png}
+    \caption{Test Set Confusion Matrix: No Filter, No Wrapper}
     \label{fig: NFW2}
 \end{figure}
 
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Category}} & \multicolumn{1}{c|}{\textbf{Train}} & \multicolumn{1}{c|}{\textbf{Test}} \\ \hline
+\textbf{Subject 1}  & 0.927 & 0.617 \\ \hline
+\textbf{Subject 2}  & 0.929 & 0.585 \\ \hline
+\textbf{Subject 3}  & 0.930 & 0.624 \\ \hline
+\textbf{Subject 4}  & 0.928 & 0.610 \\ \hline
+\textbf{Subject 5}  & 0.928 & 0.640 \\ \hline
+\textbf{Subject 6}  & 0.926 & 0.657 \\ \hline
+\textbf{Subject 7}  & 0.927 & 0.669 \\ \hline
+\textbf{Subject 8}  & 0.929 & 0.665 \\ \hline
+\textbf{Subject 9}  & 0.929 & 0.683 \\ \hline
+\textbf{Subject 10} & 0.929 & 0.543 \\ \hline
+\textbf{Overall}    & 0.928 & 0.623 \\ \hline
+\end{tabular}
+\caption{Subject-wise accuracy rates for no filter with no wrapper configuration.}
+\label{tab:NFNWT}
+\end{table}
+
+The table and the subject-wise accuracies represent the classic case of over-fitting, as the test set accuracy is far below the training set accuracy.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{nfnw/subject_wise_acc.png}
-    \caption{Comparison}
+    \includegraphics[width=1.0\linewidth]{nfnw/subject_wise_acc.png}
+    \caption{Subject-wise training and testing accuracies.}
     \label{fig: NFW3}
 \end{figure}
 
@@ -232,16 +270,23 @@ As a baseline measure for comparison purposes, a model without feature selection
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{nfnw/overall_train_conf_mat.png}
-    \caption{Train}
+    \caption{Training Set Confusion Matrix: No Filter, No Wrapper}
     \label{fig: NFW4}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{nfnw/overall_test_conf_mat.png}
-    \caption{Test}
+    \caption{Test Set Confusion Matrix: No Filter, No Wrapper}
     \label{fig: NFW5}
 \end{figure}
+
+In this case, its observed that there is a high degree of mis-classification rate in the features close to each other, as indicated by the darker shades in near-diagonal
+elements.
+
+That would give us the reasoning behind the poses which might not be all that different from each other. They may have a number of joints positioned in similar ways without substantial change in the feet movement being likely explanations to be the cause of this over-fitting behavior.
+
+This behavior justifies the performance of the feature selection methods because we now recognize the need to select those joints or the associated feet pixels which can potentially vary significantly, or be discriminative enough for even these same poses. Hopefully, adding the filter would help curb the over-fitting nature of the KNN Classifier employed.
 
 %-------------------------------------------------------------------------
 \subsubsection{Filter, No Wrapper}
@@ -249,41 +294,72 @@ As a baseline measure for comparison purposes, a model without feature selection
 The filtering method with Variance Ratio was implemented and the top 100 features were considered. The processed training data was used to fit the \textit{K-Nearest Neighbors Classifier} from \textit{Scikit-Learn} with $k=10$.
 
 \subsubsection*{Classification Rates}
+Let us look at the classification rates for the features both for training and test data followed by the the training and testing classification rates per subject as shown in the following figures.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{fnw/overall_per_class_train.png}
-    \caption{Train}
+    \caption{Per Class Training Accuracy per Form}
     \label{fig: F1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{fnw/overall_per_class_test.png}
-    \caption{Test}
+    \caption{Per Class Testing Accuracy per Form}
     \label{fig: F2}
 \end{figure}
 
+Clearly, there is a minor improvement observed in the test classification rates. This comes at the expense of training classification rates which would always increase as long as we gave it more features, associating this problem with a tradeoff with features and training accuracy. However, the over-fitting problem has ameliorated at a certain extent with nearly all features reaching more than 40\% test accuracy with some noticeable outliers.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Category}} & \multicolumn{1}{c|}{\textbf{Train}} & \multicolumn{1}{c|}{\textbf{Test}} \\ \hline
+\textbf{Subject 1}  & 0.924 & 0.664 \\ \hline
+\textbf{Subject 2}  & 0.934 & 0.666 \\ \hline
+\textbf{Subject 3}  & 0.935 & 0.722 \\ \hline
+\textbf{Subject 4}  & 0.935 & 0.776 \\ \hline
+\textbf{Subject 5}  & 0.937 & 0.774 \\ \hline
+\textbf{Subject 6}  & 0.935 & 0.767 \\ \hline
+\textbf{Subject 7}  & 0.937 & 0.782 \\ \hline
+\textbf{Subject 8}  & 0.935 & 0.779 \\ \hline
+\textbf{Subject 9}  & 0.929 & 0.642 \\ \hline
+\textbf{Subject 10} & 0.938 & 0.685 \\ \hline
+\textbf{Overall}    & 0.934 & 0.726 \\ \hline
+\end{tabular}
+\caption{Subject-wise accuracy rates for filter with no wrapper.}
+\label{tab:FNWT}
+\end{table}
+
+Its evident from \ref{tab:FNWT} that the model is overfitting the training data distribution as the training accuracy rate is substantially higher compared to the testing accuracy rate.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\linewidth]{fnw/subject_wise_acc.png}
-    \caption{Comparison}
+    \includegraphics[width=0.8\linewidth]{fnw/subject_wise_acc.png}
+    \caption{Subject-wise training and testing accuracies.}
     \label{fig: F3}
 \end{figure}
 
+Looking at the subject-wise training and test accuracies for each individual subjects, we find that nearly all subjects reach more than 60\% test accuracy. Hence, which is much better than the no filter method, however there is constant steady behavior expected with the training accuracy.
+
 \subsubsection*{Confusion Matrix}
+
+Looking at the confusion matrices, its evident that the over-fitting issue hasn't been solved yet. The training set confusion matrix diagonal elements are bright compared to the rest which is the desirable feature. \\
+However, the testing set confusion matrix hasn't been set yet. Hopefully introducing a wrapper method suitable to the data would be helpful in fixing the issue.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{fnw/overall_train_conf_mat.png}
-    \caption{Train}
+    \caption{Training Set Confusion Matrix: Filter, No Wrapper}
     \label{fig: F4}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{fnw/overall_test_conf_mat.png}
-    \caption{Test}
+    \caption{Test Set Confusion Matrix: Filter, No Wrapper}
     \label{fig: F5}
 \end{figure}
 
@@ -297,37 +373,58 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/overall_per_class_train.png}
-    \caption{Train}
+    \caption{Per Class Training Accuracy per Form}
     \label{fig: FW1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/overall_per_class_test.png}
-    \caption{Test}
+    \caption{Per Class Testing Accuracy per Form}
     \label{fig: FW2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/subject_wise_acc.png}
-    \caption{Comparison}
+    \caption{Subject-wise training and testing accuracies.}
     \label{fig: FW3}
 \end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Category}} & \multicolumn{1}{c|}{\textbf{Train}} & \multicolumn{1}{c|}{\textbf{Test}} \\ \hline
+\textbf{Subject 1}  & 0.924 & 0.664 \\ \hline
+\textbf{Subject 2}  & 0.934 & 0.666 \\ \hline
+\textbf{Subject 3}  & 0.935 & 0.722 \\ \hline
+\textbf{Subject 4}  & 0.935 & 0.776 \\ \hline
+\textbf{Subject 5}  & 0.937 & 0.774 \\ \hline
+\textbf{Subject 6}  & 0.935 & 0.767 \\ \hline
+\textbf{Subject 7}  & 0.937 & 0.782 \\ \hline
+\textbf{Subject 8}  & 0.935 & 0.779 \\ \hline
+\textbf{Subject 9}  & 0.929 & 0.642 \\ \hline
+\textbf{Subject 10} & 0.938 & 0.685 \\ \hline
+\textbf{Overall}    & 0.934 & 0.726 \\ \hline
+\end{tabular}
+\caption{Subject-wise accuracy rates for filter and wrapper method.}
+\label{tab:FNWT}
+\end{table}
 
 \subsubsection*{Confusion Matrix}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{results/overall_train_conf_mat.png}
-    \caption{Train}
+    \caption{Training Set Confusion Matrix: Filter and Wrapper}
     \label{fig: FW4}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{results/overall_test_conf_mat.png}
-    \caption{Test}
+    \caption{Test Set Confusion Matrix: Filter and Wrapper}
     \label{fig: FW5}
 \end{figure}
 
@@ -336,7 +433,7 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/selected_feats.png}
-    \caption{Filter}
+    \caption{Most Discriminative Features: Filter}
     \label{fig: FW6}
 \end{figure}
 
@@ -345,7 +442,7 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/avg_filter_scores.png}
-    \caption{Filter}
+    \caption{Most Commonly Selected Features: Wrapper}
     \label{fig: FW7}
 \end{figure}
 
@@ -359,6 +456,7 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 \section{Extra Credit}
 Here are my solutions for the \textbf{Extra Credit} section.
 \subsection{Ensemble Learning}
+
 %-------------------------------------------------------------------------
 
 % BIBLIOGRAPHY

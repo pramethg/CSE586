@@ -9,7 +9,9 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
+                train(): Perform the feature selection, main function for the training process using filter and wrapper method.
+                visualize(): Visualize the results.
 }
 '''
 

@@ -9,7 +9,9 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
+        filter_method: Performs filter method with Variance Ratio as the evaluation criterion.
+        forward_selection: Performs the Wrapper Method through the use of Sequential Forward Selection Algorithm.
 }
 '''
 
@@ -45,7 +47,6 @@ def forward_selection(train_data, train_labels):
         else:
             if train_acc_arr[-1] - train_acc_arr[-2] < 0.0005:
                 selected_inds = selected_inds[:-1]
-    print(train_acc_arr)
     return selected_inds
 
 # TODO: Implement the filtering method.

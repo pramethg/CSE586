@@ -9,7 +9,14 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description: 
+        arg_parse: Parses the arguments.
+        load_dataset: Loads the dataset.
+        normalize_data: Normalizes the data to [0, 1] range. Records the min and max values if 
+                        sent training data. If sent test data, uses the previous min and max values.
+        split_data: Splits the data in a LOSO fashion with the i-th subject as test data.
+        plot_feat: Plots the features and their scores or number of times and their scores.
+        sub_stats: Calculated the subject statistics.
 }
 '''
 
@@ -30,6 +37,7 @@ def arg_parse():
     parser.add_argument('--save_results', action='store_true', help='Whether to save results')
     parser.add_argument('--save_dir', type=str, default='results', help='Directory to save results')
     parser.add_argument('--do_plot', action='store_true', help='Whether to plot results')
+    # Arguments are added to train baseline model and model without wrapper
     parser.add_argument('--no_fw', action='store_true', help='No filter and no wrapper configuration')
     parser.add_argument('--no_w', action='store_true', help='No wrapper configuration')
     return parser.parse_args()
