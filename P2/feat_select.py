@@ -35,7 +35,8 @@ def forward_selection(train_data, train_labels):
     selected_inds = np.array([], dtype = np.int32)
     # Linear Discriminant Analysis classifier is used for the SFS algorithm process
     clf = LinearDiscriminantAnalysis()
-    acc_threshold = 0.8
+    # setup an accuracy threshold for the 
+    acc_threshold = 0.85
     # feat_outer iterates over the range of the outer feat count
     for feat_outer in range(filter_feat_count):
         # Initialize the local accuracy in the loop and the temporary feature for the iteration process.
@@ -44,15 +45,14 @@ def forward_selection(train_data, train_labels):
         # feat_inner iterates over the range of the inner feat count
         for feat_inner in range(filter_feat_count):
             # return the looped over selected indices if the accuracy is over the specifed threshold.
-            print(selected_inds)
             if local_acc > acc_threshold:
                 return selected_inds
             # if the existing feat in feat_inner is present, continue looping over the range
             if feat_inner in selected_inds:
                 continue
             # stack the selected indices of the training data and the current temporary feature in the inner loop
-            # temp_feat_arr = train_data[:, feat_inner].reshape(-1,1)
-            temp_train_set = np.hstack((train_data[:, selected_inds], train_data[:, feat_inner].reshape(-1,1)))
+            temp_feat_arr = train_data[:, feat_inner].reshape(-1,1)
+            temp_train_set = np.hstack((train_data[:, selected_inds], temp_feat_arr))
             # train and evaluate the classifer with the stacked data
             clf.labels_ = np.unique(train_labels)
             clf.fit(temp_train_set, train_labels)
@@ -89,7 +89,7 @@ def filter_method(train_data, train_labels):
     for feature in range(train_data.shape[1]):
         sum_per_label_var = 0 # variable to store the summation of per label variance
         # Variance of the feature: Var(Sf)
-        var_feature = np.var(train_data[:, feature])
+        var_feature = np.var(train_data[:, feature], dtype = np.float64)
         # For each feature iterate over all the labels over each train_label categories.
         for label in train_label_unique:
             # Construct a array represting all the training data representing the label being iterated over.
