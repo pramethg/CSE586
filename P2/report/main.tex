@@ -11,7 +11,7 @@
  
  % Metadata info
 \newcommand{\mytitle}{Project 2} 
-\newcommand{\mydate}{\today}
+\newcommand{\mydate}{February 20, 2023}
 \newcommand{\myauthors}{Prameth Gaddale (pqg5273@psu.edu)}
 
 % Setting Hyperref parameters
@@ -175,18 +175,26 @@ The algorithm of the Filter Method is given by,
 %-------------------------------------------------------------------------
 \subsection{Wrapper Method}
 
-Wrapper methods typically employ a search algorithm to select a subset of features based on their impact on model performance. Unlike filter methods, which evaluate features independently, wrapper methods considers the interdependence between the features and the model.
+Wrapper methods typically employ a search algorithm to select a subset of features based on their impact on model performance \cite{feature}. Unlike filter methods, which evaluate features independently, wrapper methods considers the interdependence between the features and the model.
 
 Generally the wrapper methodology involves defining the target vector and a set of potential features (predictors). Upon that, we'd define a search algorithm procedure that iteratively adds or removes features to/from the model. Subsequently, a machine learning model is trained using a subset of features and the performance of the model is evaluated either through the use of training data or validation data. Consequently, we use the performance metric to guide the search algorithm in selecting the best subset of features. Upon finding a good enough set of features from the search procedure, we train a classification model using the selected subset of features.
 
 \subsubsection*{Optimization Criterion}
-    
+For this case, we consider the local classification rate we achieve while iterating towards our selected features using sequential forward selection. In our case, we have put a cap of 0.75 classification rate which must be achieved by that particular subset of features to be selected in the final selected index list. As the algorithm is greedy,  it tends to add another feature in order to increase the number of final features in the set. However in parallel it won’t let go of the temporary feature completely as it had already picked on its first run.
+
+\subsubsection*{Classifier Used}
+In this case, the classifier used for training the wrapper method through the Sequential Forward Selection method is Linear Discriminant Analysis, as it perform better than KNN for reducing the over-fitting. Eventually, performing better in the test-set generalization process.
 
 \subsubsection*{Wrapper Method Algorithm}
 The algorithm of the Wrapper method through the use of Sequential Forward Selection is given by,
+
 \begin{itemize}
-    \item Initially, consider an empty set of the features, and store the complete set of features.
+    \item Initially, consider an empty set of the features $S$, and store the complete set of features $F$.
+    \item While the size of $S$ is smaller than a pre-defined constant value, for each feature from $F$, add it to $S$ and train a classifer.
+    \item If the performance on the train set or the validation set is greater than a pre-defined threshold, add that feature to the final set, and loop over all the subset in a ordered fashion to find relevant features.
+    \item Return the best set of the features received.
 \end{itemize}
+
 
 %-------------------------------------------------------------------------
 \section{Report}
@@ -210,7 +218,6 @@ The schematic of the model pipeline is shown in .
     \label{fig: NFW1}
 \end{figure}
 
-\pagebreak
 %-------------------------------------------------------------------------
 \subsection{Classification Results}
 
@@ -370,6 +377,8 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 
 \subsubsection*{Classification Rates}
 
+We observe a negligible change in the performance when compared between the filter and filter wrapper method. Its also evident after looking at the subject-wise training and test set accuracies. 
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{results/overall_per_class_train.png}
@@ -391,28 +400,9 @@ The filtering method with Variance Ratio as the measure was implemented. The top
     \label{fig: FW3}
 \end{figure}
 
-\begin{table}[H]
-\centering
-\begin{tabular}{|l|l|l|}
-\hline
-\multicolumn{1}{|c|}{\textbf{Category}} & \multicolumn{1}{c|}{\textbf{Train}} & \multicolumn{1}{c|}{\textbf{Test}} \\ \hline
-\textbf{Subject 1}  & 0.924 & 0.664 \\ \hline
-\textbf{Subject 2}  & 0.934 & 0.666 \\ \hline
-\textbf{Subject 3}  & 0.935 & 0.722 \\ \hline
-\textbf{Subject 4}  & 0.935 & 0.776 \\ \hline
-\textbf{Subject 5}  & 0.937 & 0.774 \\ \hline
-\textbf{Subject 6}  & 0.935 & 0.767 \\ \hline
-\textbf{Subject 7}  & 0.937 & 0.782 \\ \hline
-\textbf{Subject 8}  & 0.935 & 0.779 \\ \hline
-\textbf{Subject 9}  & 0.929 & 0.642 \\ \hline
-\textbf{Subject 10} & 0.938 & 0.685 \\ \hline
-\textbf{Overall}    & 0.934 & 0.726 \\ \hline
-\end{tabular}
-\caption{Subject-wise accuracy rates for filter and wrapper method.}
-\label{tab:FNWT}
-\end{table}
-
 \subsubsection*{Confusion Matrix}
+
+The confusion matrices appear pretty much the same too as in the filter without wrapper method, like all other graphs. However, the contrast in the traning set has improved indicating that the training set has been overfitted due to the use of KNN classifier.
 
 \begin{figure}[H]
     \centering
@@ -428,7 +418,9 @@ The filtering method with Variance Ratio as the measure was implemented. The top
     \label{fig: FW5}
 \end{figure}
 
-\subsubsection*{Most Discriminative Features: Filter}
+\subsubsection*{Most Discriminative Features}
+
+Here is the plot representing the most discriminaive features recieved by the feature-wrapper method of solving the classification problem. Both the MOCAP Joint 3 and MOCAP Joint 8 have been selected 8 times, indicating that they are the features with most variance embedded in them, exploited by the filter method implementation.
 
 \begin{figure}[H]
     \centering
@@ -437,7 +429,9 @@ The filtering method with Variance Ratio as the measure was implemented. The top
     \label{fig: FW6}
 \end{figure}
 
-\subsubsection*{Most Commonly Selected Features: Wrapper}
+\subsubsection*{Most Commonly Selected Features}
+
+Here is the plot representing the most commonly selected features recieved by the feature-wrapper method of solving the classification problem. In this case, MOCAP Joint 7 and MOCAP Joint 10 have received greatest scores compared to the rest. Comparing the figures \ref{fig: FW5} and \ref{fig: FW6} we get that MOCAP Joint 7 has most varaince and gives great classification rates in the temporary feature vectors while training the wrapper method.
 
 \begin{figure}[H]
     \centering
@@ -448,14 +442,27 @@ The filtering method with Variance Ratio as the measure was implemented. The top
 
 %-------------------------------------------------------------------------
 \subsection{Question: Dataset Size Sufficiency}
+The sufficiency of a dataset size for classification problems in general depends on several factors such as the complexity of the problem, the total number of features, the amount of noise in the given dataset. Its also dependent on the desired level of accuracy being targeted. In general, larger the dataset is more reliable feature selection results are expected as they contain more information that can help distinguish between relevant and irrelevant features.
 
+However, it is important to note that simply increasing the size of the dataset does not necessarily guarantee better feature selection results. In parallel, its important to consider the quality of the data and the distribution of the samples in the dataset. For example, in the case of the dataset having a high degree of class-imbalance or unknown/missing values, then the feature selection results may not be reliable.
+
+In addition, the number of features available in the given dataset can also affect the sufficiency of the dataset size for feature selection. If the dataset contains a large number of features compared to the number of samples, then the feature selection process may be less reliable, as the algorithm may struggle to identify relevant features due to constraints set by the \textbf{curse of dimensionality} \cite{ChrisPRML}.
+
+In an application point of view, incorrectly classifying patients based on clinical data can lead to misdiagnosis and mistreatment. For example, mis-classifying a patient as having a certain condition when they do not can lead to unnecessary treatment and potentially harmful interventions \cite{Ladha2015}.
+
+In summary, while a larger dataset size can be beneficial for classification in general, it is important to also consider other factors such as the overall quality of the data and the number of features, in order to obtain reliable and accurate prediction results.
 %-------------------------------------------------------------------------
 \section{Conclusion}
 
-%-------------------------------------------------------------------------
-\section{Extra Credit}
-Here are my solutions for the \textbf{Extra Credit} section.
-\subsection{Ensemble Learning}
+\begin{itemize}
+    \item To improve the performance of the classification on the Taiji dataset, filter method and wrapper method was implemented.
+    \item Top 100 features were considered from the filter based on the quantitative relevance captured by the variance ratio estimates.
+    \item In the wrapper method, it was observed that the total number of features selected for each of the test subjects was in the range of 15-20. Which is about less than 25\% of the features received by the Filter method.
+    \item The sequential forward selection algorithms characterizes most of the features to be redundant to receive greater performance on the training set which is not necessarily perfect.
+    \item However, it’s important to note that this comes by using a lot less features which can be crucial as in some cases we are just using ~20 features to achieve performance on par with 100 features.
+    \item Performance improvements of the wrapper method are not that crucial enough to greatly improve the working on the Taiji dataset.
+    \item Using ensemble of machine learning classification algorithms for training seems to give better results than plain filter-wrapper methodolgy with the KNN classifer in the end for predictions. 
+\end{itemize}
 
 %-------------------------------------------------------------------------
 
