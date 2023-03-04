@@ -177,6 +177,8 @@ def wallpaper_main(args):
                 test_loss=test_loss, test_acc=test_acc)
 
     # Note: The code does not save the model but you may do so if you choose with the args.save_model flag.
+    if args.save_model:
+        pass
 
 def taiji_main(args):
     """
