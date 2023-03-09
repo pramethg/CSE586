@@ -107,7 +107,34 @@ def train(model, train_loader, optimizer, criterion, epochs,
 
     preds = np.concatenate(preds)
     targets = np.concatenate(targets)
-    return model, np.array(per_epoch_loss), np.array(per_epoch_acc), preds, targets   
+    return model, np.array(per_epoch_loss), np.array(per_epoch_acc), preds, targets
+
+def visualize_layer(model, loader, num_layer = 1, device = "cpu", filename = "layer.png"):
+    """
+    Visualize the activations of a layer in the model.
+    Args:
+        model (torch.nn.Module): Model to visualize.
+        loader (torch.utils.data.DataLoader): Data loader to use.
+        layer (int): Layer to visualize.
+        device (torch.device): Device to use (cuda or cpu).
+    """
+    model.eval()
+    labels = ["CM", "CMM", "P1", "P2", "P3", "P31M", "P2M1", "P4", "P4G", "P4M", "P6", "P6M", "PG", "PGG", "PM", "PMG", "PMM"]
+    outputs = []
+    for i in range(0, len(loader.dataset), len(loader.dataset)//17):
+        layer_out = []
+        img = torch.unsqueeze(loader.dataset[i][0].to(device), 0)
+        for layer in list(model.children())[0]:
+            img = layer(img)
+            layer_out.append(img)
+        outputs.append(layer_out)
+    fig = plt.figure(figsize = (12, 12))
+    for i in range(len(outputs)):
+        img = torch.mean(torch.squeeze(outputs[i][num_layer], 0), 0).cpu().detach().numpy()
+        plt.subplot(4, 5, i+1)
+        plt.imshow(img, cmap = "gray")
+        plt.title(labels[i])
+    plt.savefig(filename, bbox_inches='tight')
 
 def wallpaper_main(args):
     """
@@ -153,9 +180,9 @@ def wallpaper_main(args):
     # Initialize the model, optimizer, and loss function
     if args.baseline:
         model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
-    if args.model_1:
+    if args.model1:
         model = CNN1(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
-    if args.model_2:
+    if args.model2:
         model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -177,6 +204,10 @@ def wallpaper_main(args):
     if not os.path.exists(os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'stats')):
         os.makedirs(os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'stats'))
     overall_file_name = os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'stats', 'overall.npz')
+
+    # Visualize the a specific convolutional layer
+    overall_layer_name = os.path.join(args.save_dir, 'Wallpaper', args.test_set, f'layer_{args.layer}.png')
+    visualize_layer(model, test_loader, args.layer, args.device, overall_layer_name)
 
     np.savez(overall_file_name, classes_train=classes_train, overall_train_mat=overall_train_mat, 
                 classes_test=classes_test, overall_test_mat=overall_test_mat, 
@@ -226,9 +257,9 @@ def taiji_main(args):
 
         if args.baseline:
             model = MLP(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
-        if args.model_1:
+        if args.model1:
             model = MLP1(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
-        if args.model_1:
+        if args.model2:
             model = MLP2(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -259,7 +290,7 @@ def taiji_main(args):
         np.savez(sub_file, train_losses=train_losses, per_epoch_acc=per_epoch_train_acc, test_acc=test_acc,
                  conf_mat_train=conf_mat_train, conf_mat_test=conf_mat_test)
 
-        # Note: the code does not save the model, but you may choose to do so with the arg.save_model flag
+        # Note: the code does not save the model, but you may choose to do so with the args.save_model flag
         
     # Save overall stats
     overall_train_acc = np.mean(sub_train_acc)

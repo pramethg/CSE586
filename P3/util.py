@@ -54,11 +54,11 @@ def arg_parse():
     # Taji specific
     parser.add_argument('--num_subs', type=int, default=10, help='Number of subjects to train and test on')
     parser.add_argument('--fp_size', type=str, default='lod4', help='Size of the fingerprint to use (lod4 or full)')
-    parser.add_argument('--')
     # Wallpapers specific
     parser.add_argument('--img_size', type=int, default=128, help='Size of image to be resized to')
     parser.add_argument('--test_set', type=str, default='test', help='Test set to use (test or test_challenge)')
     parser.add_argument('--aug_train', action='store_true', help='Use augmented training data')
+    parser.add_argument('--layer', type=int, default =1, help='Layer to use for visualization')
      
 
     return parser.parse_args()
