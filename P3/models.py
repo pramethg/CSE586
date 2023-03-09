@@ -9,7 +9,7 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
 }
 '''
 import numpy as np
@@ -17,7 +17,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# TODO: Can the MLP be improved?
 class MLP(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         """
@@ -35,6 +34,32 @@ class MLP(nn.Module):
 
     def forward(self, x):
         return F.log_softmax(self.layers(x), dim=1)
+
+class MLP1(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        """
+        Args:
+            input_dim (int): number of input features
+            hidden_dim (int): number of hidden units
+            output_dim (int): number of output units
+        """
+        super(MLP1, self).__init__()
+        
+    def forward(self, x):
+        return x
+
+class MLP2(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        """
+        Args:
+            input_dim (int): number of input features
+            hidden_dim (int): number of hidden units
+            output_dim (int): number of output units
+        """
+        super(MLP3, self).__init__()
+
+    def forward(self, x):
+        return x
 
 class CNN(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
@@ -69,7 +94,20 @@ class CNN(nn.Module):
         x = self.fc_2(x)
         return F.log_softmax(x, dim=1)
 
-# TODO: Can the CNN be improved? You may want to add or remove any arguments to the init.
+class CNN1(nn.Module):
+    def __init__(self, input_channels=1, img_size=32, num_classes=17):
+        """
+        Args:
+            input_channels (int): number of channels in the input image
+            img_size (int): size of the input image (img_size x img_size)
+            num_classes (int): number of classes in the dataset
+        """
+        super(CNN2, self).__init__()
+        raise NotImplementedError
+
+    def forward(self, x):
+        return x
+
 class CNN2(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
         """
@@ -80,3 +118,6 @@ class CNN2(nn.Module):
         """
         super(CNN2, self).__init__()
         raise NotImplementedError
+
+    def forward(self, x):
+        return x

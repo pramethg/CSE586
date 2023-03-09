@@ -9,7 +9,7 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
 }
 '''
 import os
@@ -149,8 +149,15 @@ def wallpaper_main(args):
 
 
     print(f"Training on {len(train_dataset)} images, testing on {len(test_dataset)} images.")
+
     # Initialize the model, optimizer, and loss function
-    model = CNN(input_channels=1, img_size=args.img_size, num_classes=num_classes).to(device)
+    if args.baseline:
+        model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+    if args.model_1:
+        model = CNN1(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+    if args.model_2:
+        model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
 
@@ -211,11 +218,19 @@ def taiji_main(args):
     # For each subject LOSO
     for i in range(num_subs):
         print('\n\nTraining subject: {}'.format(i+1))
+
         train_data = TaijiData(data_dir='data', subject=i+1, split='train')
         test_data = TaijiData(data_dir ='data', subject=i+1, split='test')
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False)
-        model = MLP(input_dim=train_data.data_dim, hidden_dim=1024, output_dim=num_forms).to(device)
+
+        if args.baseline:
+            model = MLP(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
+        if args.model_1:
+            model = MLP1(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
+        if args.model_1:
+            model = MLP2(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
+
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()
 

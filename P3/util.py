@@ -9,7 +9,7 @@ file that you add code to.)
 {
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
-    Description: (A short description of what each of the functions you've written does.).
+    Description:
 }
 '''
 import argparse
@@ -47,9 +47,14 @@ def arg_parse():
     parser.add_argument('--log_interval', type=int, default=1, help='Print loss every log_interval epochs, feel free to change')
     parser.add_argument('--train' , action='store_true', help='Train the model')
     parser.add_argument('--save_model', action='store_true', help='Save the model')
+    # Model selection
+    parser.add_argument('--baseline', action = 'store_true', help = 'Basline model configuiration')
+    parser.add_argument('--model1', action = 'store_true', help = 'Model-1 configuiration, built on top of baseline')
+    parser.add_argument('--model2', action = 'store_true', help = 'Model-2 configuiration, built on top of baseline')
     # Taji specific
     parser.add_argument('--num_subs', type=int, default=10, help='Number of subjects to train and test on')
     parser.add_argument('--fp_size', type=str, default='lod4', help='Size of the fingerprint to use (lod4 or full)')
+    parser.add_argument('--')
     # Wallpapers specific
     parser.add_argument('--img_size', type=int, default=128, help='Size of image to be resized to')
     parser.add_argument('--test_set', type=str, default='test', help='Test set to use (test or test_challenge)')
