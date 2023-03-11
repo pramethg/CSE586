@@ -19,6 +19,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from tqdm import tqdm
+from sklearn.manifold import TSNE
 
 from util import *
 from models import *
@@ -136,6 +137,56 @@ def visualize_layer(model, loader, num_layer = 1, device = "cpu", filename = "la
         plt.title(labels[i])
     plt.savefig(filename, bbox_inches='tight')
 
+def normalize(x):
+    """
+    Normalize the features to [0,1] range.
+    Args:
+        x (numpy array): Features to normalize.
+    Returns:
+        x (numpy array): Normalized features.
+    """
+    range_values = (np.max(x) - np.min(x))
+    shift = x - np.min(x)
+    x = shift / range_values
+    return x
+
+def visualize_tsne(model, loader, device = "cpu", filename = "tsne.png"):
+    """
+    Visualize the features using t-SNE.
+    Args:
+        dataset (torch.utils.data.Dataset): Dataset to visualize.
+        filename (str): Filename to save the visualization to.
+    """
+    features = torch.tensor([])
+    labels = []
+    model.eval()
+    for batch in loader:
+        images = batch[0].to(device)
+        labels += batch[1].tolist()
+        output = model.forward(images).cpu().detach()
+        features = torch.cat((features, output), 0)
+    tsne = TSNE(n_components=2, random_state=0).fit_transform(features)
+    tx = tsne[:, 0]
+    ty = tsne[:, 1]
+    tx = normalize(tx)
+    ty = normalize(ty)
+    fig = plt.figure(figsize = (12, 12))
+    ax = fig.add_subplot(111)
+    classes = ["CM", "CMM", "P1", "P2", "P3", "P31M", "P2M1", "P4", "P4G", "P4M", "P6", "P6M", "PG", "PGG", "PM", "PMG", "PMM"]
+    names = {}
+    for i in range(len(classes)):
+        names[i] = classes[i]
+    colors = {label: np.random.randint(0, 255, 3) for label in names}
+    for label in colors:
+        idx = [i for i, l in enumerate(labels) if l == label]
+        present_tx = np.take(tx, indices = idx)
+        present_ty = np.take(ty, indices = idx)
+        color = np.array(colors[label], dtype = np.float64) / 255
+        ax.scatter(present_tx, present_ty, color = color, label = names[label])
+    ax.legend(loc = 'best')
+    plt.title("TSNE Visualization of Wallpaper Dataset")
+    plt.savefig(filename, bbox_inches='tight')
+    
 def wallpaper_main(args):
     """
     Main function for training and testing the wallpaper classifier.
@@ -180,9 +231,7 @@ def wallpaper_main(args):
     # Initialize the model, optimizer, and loss function
     if args.baseline:
         model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
-    if args.model1:
-        model = CNN1(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
-    if args.model2:
+    if args.improved:
         model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -209,14 +258,18 @@ def wallpaper_main(args):
     overall_layer_name = os.path.join(args.save_dir, 'Wallpaper', args.test_set, f'layer_{args.layer}.png')
     visualize_layer(model, test_loader, args.layer, args.device, overall_layer_name)
 
+    # Visualize the t-SNE representation of the test set
+    overall_tsne_test = os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'tsne_test.png')
+    print("Visualizing t-SNE representation of Test Set...")
+    visualize_tsne(model, test_loader, args.device, overall_tsne_test)
+    overall_tsne_train = os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'tsne_train.png')
+    print("Visualizing t-SNE representation of Train Set...")
+    visualize_tsne(model, train_loader, args.device, overall_tsne_train)
+
     np.savez(overall_file_name, classes_train=classes_train, overall_train_mat=overall_train_mat, 
-                classes_test=classes_test, overall_test_mat=overall_test_mat, 
+                classes_test=classes_test, overall_test_mat=overall_test_mat,
                 per_epoch_loss=per_epoch_loss, per_epoch_acc=per_epoch_acc, 
                 test_loss=test_loss, test_acc=test_acc)
-
-    # Note: The code does not save the model but you may do so if you choose with the args.save_model flag.
-    if args.save_model:
-        pass
 
 def taiji_main(args):
     """
@@ -250,17 +303,19 @@ def taiji_main(args):
     for i in range(num_subs):
         print('\n\nTraining subject: {}'.format(i+1))
 
-        train_data = TaijiData(data_dir='data', subject=i+1, split='train')
-        test_data = TaijiData(data_dir ='data', subject=i+1, split='test')
+        train_data = TaijiData(data_dir='data', subject=i+1, split='train', fp_size = args.fp_size)
+        test_data = TaijiData(data_dir ='data', subject=i+1, split='test', fp_size = args.fp_size)
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False)
 
         if args.baseline:
             model = MLP(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
-        if args.model1:
-            model = MLP1(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
-        if args.model2:
-            model = MLP2(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
+        if args.improved:
+            if args.fp_size == 'small':
+                hidden_dim = 64
+            else:
+                hidden_dim = 1024
+            model = MLP2(input_dim = train_data.data_dim, hidden_dim = hidden_dim, output_dim = num_forms).to(device)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()

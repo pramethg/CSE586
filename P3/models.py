@@ -35,19 +35,6 @@ class MLP(nn.Module):
     def forward(self, x):
         return F.log_softmax(self.layers(x), dim=1)
 
-class MLP1(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
-        """
-        Args:
-            input_dim (int): number of input features
-            hidden_dim (int): number of hidden units
-            output_dim (int): number of output units
-        """
-        super(MLP1, self).__init__()
-        
-    def forward(self, x):
-        return x
-
 class MLP2(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         """
@@ -56,10 +43,24 @@ class MLP2(nn.Module):
             hidden_dim (int): number of hidden units
             output_dim (int): number of output units
         """
-        super(MLP3, self).__init__()
+        super(MLP2, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, output_dim)
+        self.bn1 = nn.BatchNorm1d(self.hidden_dim, affine = False)
+        self.bn2 = nn.BatchNorm1d(self.hidden_dim, affine = False)
+        self.dropout = nn.Dropout(0.25)
 
     def forward(self, x):
-        return x
+        x = self.fc1(x)
+        x = F.relu(self.bn1(x))
+        x = self.dropout(x)
+        x = self.fc2(x)
+        x = F.relu(self.bn2(x))
+        x = self.dropout(x)
+        x = self.fc3(x)
+        return F.log_softmax(x, dim=1)
 
 class CNN(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
@@ -94,19 +95,6 @@ class CNN(nn.Module):
         x = self.fc_2(x)
         return F.log_softmax(x, dim=1)
 
-class CNN1(nn.Module):
-    def __init__(self, input_channels=1, img_size=32, num_classes=17):
-        """
-        Args:
-            input_channels (int): number of channels in the input image
-            img_size (int): size of the input image (img_size x img_size)
-            num_classes (int): number of classes in the dataset
-        """
-        super(CNN2, self).__init__()
-        raise NotImplementedError
-
-    def forward(self, x):
-        return x
 
 class CNN2(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
@@ -120,4 +108,4 @@ class CNN2(nn.Module):
         raise NotImplementedError
 
     def forward(self, x):
-        return x
+        return F.log_softmax(x, dim=1)

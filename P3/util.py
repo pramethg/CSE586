@@ -49,8 +49,7 @@ def arg_parse():
     parser.add_argument('--save_model', action='store_true', help='Save the model')
     # Model selection
     parser.add_argument('--baseline', action = 'store_true', help = 'Basline model configuiration')
-    parser.add_argument('--model1', action = 'store_true', help = 'Model-1 configuiration, built on top of baseline')
-    parser.add_argument('--model2', action = 'store_true', help = 'Model-2 configuiration, built on top of baseline')
+    parser.add_argument('--improved', action = 'store_true', help = 'Improved Mode configuration')
     # Taji specific
     parser.add_argument('--num_subs', type=int, default=10, help='Number of subjects to train and test on')
     parser.add_argument('--fp_size', type=str, default='lod4', help='Size of the fingerprint to use (lod4 or full)')
