@@ -36,7 +36,7 @@ class MLP(nn.Module):
         return F.log_softmax(self.layers(x), dim=1)
 
 class MLP2(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
+    def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, output_dim):
         """
         Args:
             input_dim (int): number of input features
@@ -44,12 +44,13 @@ class MLP2(nn.Module):
             output_dim (int): number of output units
         """
         super(MLP2, self).__init__()
-        self.hidden_dim = hidden_dim
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, output_dim)
-        self.bn1 = nn.BatchNorm1d(self.hidden_dim, affine = False)
-        self.bn2 = nn.BatchNorm1d(self.hidden_dim, affine = False)
+        self.hidden_dim_1 = hidden_dim_1
+        self.hidden_dim_2 = hidden_dim_2
+        self.fc1 = nn.Linear(input_dim, hidden_dim_1)
+        self.fc2 = nn.Linear(hidden_dim_1, hidden_dim_2)
+        self.fc3 = nn.Linear(hidden_dim_2, output_dim)
+        self.bn1 = nn.BatchNorm1d(self.hidden_dim_1, affine = False)
+        self.bn2 = nn.BatchNorm1d(self.hidden_dim_2, affine = False)
         self.dropout = nn.Dropout(0.25)
 
     def forward(self, x):

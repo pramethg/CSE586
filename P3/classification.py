@@ -208,18 +208,19 @@ def wallpaper_main(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
-    # TODO: Augment the training data given the transforms in the assignment description.
     if args.aug_train:
-        raise NotImplementedError
+        transform = transform.Compose([
 
+        ])
 
-    # Compose the transforms that will be applied to the images. Feel free to adjust this.
-    transform = transforms.Compose([
-        transforms.Resize((args.img_size, args.img_size)),
-        transforms.Grayscale(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, ), (0.5, )),
-    ])
+    else:
+        transform = transforms.Compose([
+            transforms.Resize((args.img_size, args.img_size)),
+            transforms.Grayscale(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, ), (0.5, )),
+        ])
+
     train_dataset = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
     test_dataset = ImageFolder(os.path.join(data_root, args.test_set), transform=transform)
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
@@ -266,6 +267,9 @@ def wallpaper_main(args):
     print("Visualizing t-SNE representation of Train Set...")
     visualize_tsne(model, train_loader, args.device, overall_tsne_train)
 
+    print(f"Training Accuracy Standard Deviation over 17 Classes: {np.std(classes_train):.5f}")
+    print(f"Test Accuracy Standard Deviation over 17 Classes: {np.std(classes_test):.5f}")
+
     np.savez(overall_file_name, classes_train=classes_train, overall_train_mat=overall_train_mat, 
                 classes_test=classes_test, overall_test_mat=overall_test_mat,
                 per_epoch_loss=per_epoch_loss, per_epoch_acc=per_epoch_acc, 
@@ -311,11 +315,11 @@ def taiji_main(args):
         if args.baseline:
             model = MLP(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
         if args.improved:
-            if args.fp_size == 'small':
-                hidden_dim = 64
+            if args.fp_size == 'lod4':
+                hidden_dim_1, hidden_dim_2 = 512, 256
             else:
-                hidden_dim = 1024
-            model = MLP2(input_dim = train_data.data_dim, hidden_dim = hidden_dim, output_dim = num_forms).to(device)
+                hidden_dim_1, hidden_dim_2 = 1024, 1024
+            model = MLP2(input_dim = train_data.data_dim, hidden_dim_1 = hidden_dim_1, hidden_dim_2 = hidden_dim_2, output_dim = num_forms).to(device)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()
@@ -345,13 +349,14 @@ def taiji_main(args):
         np.savez(sub_file, train_losses=train_losses, per_epoch_acc=per_epoch_train_acc, test_acc=test_acc,
                  conf_mat_train=conf_mat_train, conf_mat_test=conf_mat_test)
 
-        # Note: the code does not save the model, but you may choose to do so with the args.save_model flag
-        
     # Save overall stats
     overall_train_acc = np.mean(sub_train_acc)
     overall_test_acc = np.mean(sub_test_acc)
     print(f"\n\nOverall Train Accuracy: {overall_train_acc:.3f}")
     print(f"Overall Test Accuracy: {overall_test_acc:.3f}")
+
+    print(f"Standard Deviation over subjects for Training Set: {np.std(sub_train_acc):.5f}")
+    print(f"Standard Deviation over subjects for Test Set: {np.std(sub_test_acc):.5f}")
 
     overall_file_name = os.path.join(args.save_dir, 'Taiji', args.fp_size, 'stats', 'overall.npz')
     np.savez(overall_file_name, sub_train_acc = sub_train_acc, sub_class_train=sub_class_train,
