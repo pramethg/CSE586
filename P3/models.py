@@ -59,7 +59,6 @@ class MLP2(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)
         x = F.relu(self.bn2(x))
-        x = self.dropout(x)
         x = self.fc3(x)
         return F.log_softmax(x, dim=1)
 
@@ -84,7 +83,7 @@ class CNN(nn.Module):
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.ReLU(),
+            nn.ReLU()
         )
         self.fc_1 = nn.Linear(128 * (self.img_size // 8) * (self.img_size // 8), 1024)
         self.fc_2 = nn.Linear(1024, self.num_classes)
@@ -106,7 +105,31 @@ class CNN2(nn.Module):
             num_classes (int): number of classes in the dataset
         """
         super(CNN2, self).__init__()
-        raise NotImplementedError
+        self.input_channels = input_channels
+        self.num_classes = num_classes
+        self.img_size = img_size
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(self.input_channels, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32, affine = False),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64, affine = False),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(0.2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128, affine = False),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.ReLU(),
+        )
+        self.fc1 = nn.Linear(128 * (self.img_size // 8) * (self.img_size // 8), 1024)
+        self.fc2 = nn.Linear(1024, self.num_classes)
 
     def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
         return F.log_softmax(x, dim=1)

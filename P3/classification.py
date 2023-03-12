@@ -20,6 +20,7 @@ from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from tqdm import tqdm
 from sklearn.manifold import TSNE
+from torch.utils.data import ConcatDataset
 
 from util import *
 from models import *
@@ -209,21 +210,31 @@ def wallpaper_main(args):
     np.random.seed(args.seed)
 
     if args.aug_train:
-        transform = transform.Compose([
-
-        ])
-
-    else:
-        transform = transforms.Compose([
+        transform_1 = transforms.Compose([
+            transforms.RandomCrop((150, 150)),
+            transforms.RandomHorizontalFlip(p = 0.5),
+            transforms.RandomVerticalFlip(p = 0.5),
             transforms.Resize((args.img_size, args.img_size)),
             transforms.Grayscale(),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, ), (0.5, )),
+            transforms.Normalize((0.5, ), (0.5, ))
         ])
+    transform = transforms.Compose([
+        transforms.Resize((args.img_size, args.img_size)),
+        transforms.Grayscale(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, ), (0.5, )),
+    ])
 
-    train_dataset = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
-    test_dataset = ImageFolder(os.path.join(data_root, args.test_set), transform=transform)
+    if args.aug_train:
+        train_dataset_aug = ImageFolder(os.path.join(data_root, 'train'), transform=transform_1)
+        train_dataset_normal = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
+        train_dataset = ConcatDataset([train_dataset_aug, train_dataset_normal])
+    else:
+        train_dataset = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
+
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    test_dataset = ImageFolder(os.path.join(data_root, args.test_set), transform=transform)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
 
