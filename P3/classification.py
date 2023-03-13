@@ -10,6 +10,16 @@ file that you add code to.)
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
     Description:
+        test: Test the model.
+        train: Train the model and periodically log the loss and accuracy.\
+        visualize_layer: Visualize the activations of a layer in the model.
+        visualize_tsne: Visualize the predictions using t-SNE.
+        wallpaper_main: Main function for the wallpaper classification task.
+            Put the --baseline argument to use the baseline model.
+            Put the --improved argument to use the improved model.
+        taiji_main: Main function for the taiji classification task.
+            Put the --baseline argument to use the baseline model.
+            Put the --improved argument to use the improved model.
 }
 '''
 import os
@@ -120,9 +130,12 @@ def visualize_layer(model, loader, num_layer = 1, device = "cpu", filename = "la
         layer (int): Layer to visualize.
         device (torch.device): Device to use (cuda or cpu).
     """
+    # Model is put in eval mode so that dropout and batchnorm layers are not activated
     model.eval()
+    # Label names
     labels = ["CM", "CMM", "P1", "P2", "P3", "P31M", "P2M1", "P4", "P4G", "P4M", "P6", "P6M", "PG", "PGG", "PM", "PMG", "PMM"]
     outputs = []
+    # Layer-wise activations are stored in outputs
     for i in range(0, len(loader.dataset), len(loader.dataset)//17):
         layer_out = []
         img = torch.unsqueeze(loader.dataset[i][0].to(device), 0)
@@ -130,12 +143,14 @@ def visualize_layer(model, loader, num_layer = 1, device = "cpu", filename = "la
             img = layer(img)
             layer_out.append(img)
         outputs.append(layer_out)
+    # Plot the activations
     fig = plt.figure(figsize = (12, 12))
     for i in range(len(outputs)):
         img = torch.mean(torch.squeeze(outputs[i][num_layer], 0), 0).cpu().detach().numpy()
         plt.subplot(4, 5, i+1)
         plt.imshow(img, cmap = "gray")
         plt.title(labels[i])
+    # Save the plot
     plt.savefig(filename, bbox_inches='tight')
 
 def normalize(x):
@@ -153,30 +168,36 @@ def normalize(x):
 
 def visualize_tsne(model, loader, device = "cpu", filename = "tsne.png"):
     """
-    Visualize the features using t-SNE.
+    Visualize the predictions using t-SNE.
     Args:
         dataset (torch.utils.data.Dataset): Dataset to visualize.
         filename (str): Filename to save the visualization to.
     """
     features = torch.tensor([])
     labels = []
+    # Model is put in eval mode so that dropout and batchnorm layers are not activated
     model.eval()
+    # Get the features and labels
     for batch in loader:
         images = batch[0].to(device)
         labels += batch[1].tolist()
         output = model.forward(images).cpu().detach()
         features = torch.cat((features, output), 0)
+    # Normalize the features and apply t-SNE
     tsne = TSNE(n_components=2, random_state=0).fit_transform(features)
     tx = tsne[:, 0]
     ty = tsne[:, 1]
     tx = normalize(tx)
     ty = normalize(ty)
+    # Plot the t-SNE visualization
     fig = plt.figure(figsize = (12, 12))
     ax = fig.add_subplot(111)
+    # Class names
     classes = ["CM", "CMM", "P1", "P2", "P3", "P31M", "P2M1", "P4", "P4G", "P4M", "P6", "P6M", "PG", "PGG", "PM", "PMG", "PMM"]
     names = {}
     for i in range(len(classes)):
         names[i] = classes[i]
+    # color-wise coding to differentiate the classes
     colors = {label: np.random.randint(0, 255, 3) for label in names}
     for label in colors:
         idx = [i for i, l in enumerate(labels) if l == label]
@@ -185,6 +206,7 @@ def visualize_tsne(model, loader, device = "cpu", filename = "tsne.png"):
         color = np.array(colors[label], dtype = np.float64) / 255
         ax.scatter(present_tx, present_ty, color = color, label = names[label])
     ax.legend(loc = 'best')
+    # Save the plot
     plt.title("TSNE Visualization of Wallpaper Dataset")
     plt.savefig(filename, bbox_inches='tight')
     
@@ -209,6 +231,8 @@ def wallpaper_main(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
+    # Data augmentation for training: 34000 images
+    # Random Crop, Random Horizontal Flip, Random Vertical Flip, Resize, Grayscale, ToTensor, Normalize
     if args.aug_train:
         transform_1 = transforms.Compose([
             transforms.RandomCrop((150, 150)),
@@ -226,6 +250,7 @@ def wallpaper_main(args):
         transforms.Normalize((0.5, ), (0.5, )),
     ])
 
+    # If data augmentation is used, concatenate the augmented and normal datasets to get 34000 training images
     if args.aug_train:
         train_dataset_aug = ImageFolder(os.path.join(data_root, 'train'), transform=transform_1)
         train_dataset_normal = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
@@ -240,9 +265,10 @@ def wallpaper_main(args):
 
     print(f"Training on {len(train_dataset)} images, testing on {len(test_dataset)} images.")
 
-    # Initialize the model, optimizer, and loss function
+    # Initialize the baseline model, optimizer, and loss function
     if args.baseline:
         model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+    # Initialize the baseline model, optimizer, and loss function
     if args.improved:
         model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
 
@@ -274,10 +300,12 @@ def wallpaper_main(args):
     overall_tsne_test = os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'tsne_test.png')
     print("Visualizing t-SNE representation of Test Set...")
     visualize_tsne(model, test_loader, args.device, overall_tsne_test)
+    # Visualize the t-SNE representation of the training set
     overall_tsne_train = os.path.join(args.save_dir, 'Wallpaper', args.test_set, 'tsne_train.png')
     print("Visualizing t-SNE representation of Train Set...")
     visualize_tsne(model, train_loader, args.device, overall_tsne_train)
 
+    # Print the standard deviation of the accuracy over the 17 classes
     print(f"Training Accuracy Standard Deviation over 17 Classes: {np.std(classes_train):.5f}")
     print(f"Test Accuracy Standard Deviation over 17 Classes: {np.std(classes_test):.5f}")
 
@@ -323,8 +351,10 @@ def taiji_main(args):
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
         test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False)
 
+        # Initialize the baseline model
         if args.baseline:
             model = MLP(input_dim = train_data.data_dim, hidden_dim = 1024, output_dim = num_forms).to(device)
+        # Initialize the improved model
         if args.improved:
             if args.fp_size == 'lod4':
                 hidden_dim_1, hidden_dim_2 = 512, 256
@@ -332,6 +362,7 @@ def taiji_main(args):
                 hidden_dim_1, hidden_dim_2 = 1024, 1024
             model = MLP2(input_dim = train_data.data_dim, hidden_dim_1 = hidden_dim_1, hidden_dim_2 = hidden_dim_2, output_dim = num_forms).to(device)
 
+        # Initialize the optimizer and loss function
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
         criterion = nn.CrossEntropyLoss()
 
@@ -366,6 +397,7 @@ def taiji_main(args):
     print(f"\n\nOverall Train Accuracy: {overall_train_acc:.3f}")
     print(f"Overall Test Accuracy: {overall_test_acc:.3f}")
 
+    # Print standard deviations over subjects
     print(f"Standard Deviation over subjects for Training Set: {np.std(sub_train_acc):.5f}")
     print(f"Standard Deviation over subjects for Test Set: {np.std(sub_test_acc):.5f}")
 

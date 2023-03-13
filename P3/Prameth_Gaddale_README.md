@@ -16,17 +16,14 @@ Email: pqg5273@psu.edu
     │   └── Wallpaper/
     │       ├── test
     │       └── test_challenge
-    ├── model_1/
+    ├── improved/
     │   ├── Taiji/
     │   │   ├── full
     │   │   └── lod4
     │   └── Wallpaper/
     │       ├── test
     │       └── test_challenge
-    ├── model_2/
-    │   ├── Taiji/
-    │   │   ├── full
-    │   │   └── lod4
+    ├── augmented/
     │   └── Wallpaper/
     │       ├── test
     │       └── test_challenge
@@ -37,9 +34,32 @@ Email: pqg5273@psu.edu
 ### `models.py`
 The model classes for performing classification on the Taiji and Wallpaper datasets.
 
+This file contains the code for the MLP, MLP2, CNN, and CNN2 models.
+ - `MLP`: Baseline MLP Model
+ - `MLP2`: Improved MLP Model
+ - `CNN`: Baseline CNN Model
+ - `CNN2`: Improved CNN Model
+
 ### `classification.py`
 The main file to perform classification.
+ - `test`: Test the model.
+ - `train`: Train the model and periodically log the loss and accuracy.\
+ - `visualize_layer`: Visualize the activations of a layer in the model.
+ - `visualize_tsne`: Visualize the predictions using t-SNE.
+ - `wallpaper_main`: Main function for the wallpaper classification task.
+     - Put the --baseline argument to use the baseline model.
+     - Put the --improved argument to use the improved model.
+ - `taiji_main`: Main function for the taiji classification task.
+     - Put the --baseline argument to use the baseline model.
+     - Put the --improved argument to use the improved model.
     
 
 ### `util.py`
 The file containing all the utilities.
+ - `arg_parse`: Parses the arguments.
+     - Kindly add the arguement of --baseline or --improved to select the model configuration
+ - `get_stats`: Calculates the prediction stats
+ - `prep_data`: Preprocess the data and labels by turning them into tensors and normalizing
+ - `TaijiData`: Dataset class for Taiji dataset
+ - `plot_training_curve`: Plots the training curve
+ - `visualize`: Visualize the results

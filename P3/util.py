@@ -10,6 +10,13 @@ file that you add code to.)
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
     Description:
+        arg_parse: Parses the arguments.
+            Kindly add the arguement of --baseline or --improved to select the model configuration
+        get_stats: Calculates the prediction stats
+        prep_data: Preprocess the data and labels by turning them into tensors and normalizing
+        TaijiData: Dataset class for Taiji dataset
+        plot_training_curve: Plots the training curve
+        visualize: Visualize the results
 }
 '''
 import argparse
@@ -47,8 +54,8 @@ def arg_parse():
     parser.add_argument('--log_interval', type=int, default=1, help='Print loss every log_interval epochs, feel free to change')
     parser.add_argument('--train' , action='store_true', help='Train the model')
     parser.add_argument('--save_model', action='store_true', help='Save the model')
-    # Model selection
-    parser.add_argument('--baseline', action = 'store_true', help = 'Basline model configuiration')
+    # Model selection either baseline or improved
+    parser.add_argument('--baseline', action = 'store_true', help = 'Baseline model configuiration')
     parser.add_argument('--improved', action = 'store_true', help = 'Improved Mode configuration')
     # Taji specific
     parser.add_argument('--num_subs', type=int, default=10, help='Number of subjects to train and test on')
@@ -57,6 +64,7 @@ def arg_parse():
     parser.add_argument('--img_size', type=int, default=128, help='Size of image to be resized to')
     parser.add_argument('--test_set', type=str, default='test', help='Test set to use (test or test_challenge)')
     parser.add_argument('--aug_train', action='store_true', help='Use augmented training data')
+    # The arguemnt for which CNN layer to visualize
     parser.add_argument('--layer', type=int, default =1, help='Layer to use for visualization')
      
 

@@ -10,6 +10,12 @@ file that you add code to.)
     Name: Prameth Gaddale
     PSU Email ID: pqg5273@psu.edu
     Description:
+    This file contains the code for the MLP, MLP2, CNN, and CNN2 models.
+        MLP: Baseline MLP Model
+        MLP2: Improved MLP Model
+        CNN: Baseline CNN Model
+        CNN2: Improved CNN Model
+
 }
 '''
 import numpy as np
@@ -20,6 +26,7 @@ import torch.nn.functional as F
 class MLP(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
         """
+            Baseline MLP Model
         Args:
             input_dim (int): number of input features
             hidden_dim (int): number of hidden units
@@ -38,6 +45,7 @@ class MLP(nn.Module):
 class MLP2(nn.Module):
     def __init__(self, input_dim, hidden_dim_1, hidden_dim_2, output_dim):
         """
+            Improved MLP Model
         Args:
             input_dim (int): number of input features
             hidden_dim (int): number of hidden units
@@ -65,6 +73,7 @@ class MLP2(nn.Module):
 class CNN(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
         """
+            Baseline CNN Model
         Args:
             input_channels (int): number of channels in the input image
             img_size (int): size of the input image (img_size x img_size)
@@ -99,6 +108,7 @@ class CNN(nn.Module):
 class CNN2(nn.Module):
     def __init__(self, input_channels=1, img_size=32, num_classes=17):
         """
+            Improved CNN Model
         Args:
             input_channels (int): number of channels in the input image
             img_size (int): size of the input image (img_size x img_size)
