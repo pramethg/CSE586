@@ -15,7 +15,12 @@ file that you add code to.)
         MLP2: Improved MLP Model
         CNN: Baseline CNN Model
         CNN2: Improved CNN Model
-
+        VGG16:
+            VGG16 Model for Data Augmentation Section.
+            The first layer has been modified to take in 1 channel instead of 3.
+            The convolution layer in the first layer has been modified to take in 32 filters instead of 64.
+            Also, the last layer has been modified to output 17 classes instead of 1000.
+        
 }
 '''
 import numpy as np
@@ -145,10 +150,19 @@ class CNN2(nn.Module):
         return F.log_softmax(x, dim=1)
     
 class VGG16(nn.Module):
-    def __init__(self, num_classes=17):
+    """
+        VGG16 Model for Data Augmentation Section.
+        The first layer has been modified to take in 1 channel instead of 3.
+        The convolution layer in the first layer has been modified to take in 32 filters instead of 64.
+        Also, the last layer has been modified to output 17 classes instead of 1000.
+    Args:
+        input_channels (int): number of channels in the input image
+        num_classes (int): number of classes in the dataset
+    """
+    def __init__(self, input_channels = 1, num_classes=17):
         super(VGG16, self).__init__()
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.Conv2d(input_channels, 32, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU())
         self.layer2 = nn.Sequential(

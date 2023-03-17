@@ -273,15 +273,19 @@ def wallpaper_main(args):
 
     print(f"Training on {len(train_dataset)} images, testing on {len(test_dataset)} images.")
 
-    # Initialize the baseline model, optimizer, and loss function
+    # Initialize the improved model if --improved arg is passed
     if args.improved:
+        # If data augumentation is used, use the VGG16 model
         if args.aug_train:
             model = VGG16(num_classes = 17).to(device)
+        # If data augmentation is not used, use the CNN2 model
         else:
             model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+    # Initialize the baseline model
     else:
         model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
 
+    # Initialize the optimizer and loss function
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()
 

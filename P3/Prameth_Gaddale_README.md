@@ -23,8 +23,11 @@ Email: pqg5273@psu.edu
     │   └── Wallpaper/
     │       ├── test
     │       └── test_challenge
-    ├── augmented/
-    │   └── Wallpaper/
+    ├── data_augmented/
+    │   ├── baseline/
+    │   │   ├── test
+    │   │   └── test_challenge
+    │   └── vgg16/
     │       ├── test
     │       └── test_challenge
     ├── Prameth_Gaddale_Report.pdf
@@ -39,6 +42,11 @@ This file contains the code for the MLP, MLP2, CNN, and CNN2 models.
  - `MLP2`: Improved MLP Model
  - `CNN`: Baseline CNN Model
  - `CNN2`: Improved CNN Model
+ - `VGG16`:
+     - VGG16 Model for Data Augmentation Section.
+     - The first layer has been modified to take in 1 channel instead of 3.
+     - The convolution layer in the first layer has been modified to take in 32 filters instead of 64.
+     - Also, the last layer has been modified to output 17 classes instead of 1000.
 
 ### `classification.py`
 The main file to perform classification.
