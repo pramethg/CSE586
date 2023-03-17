@@ -243,6 +243,13 @@ def wallpaper_main(args):
             transforms.ToTensor(),
             transforms.Normalize((0.5, ), (0.5, ))
         ])
+        transform_2 = transforms.Compose([
+            transforms.RandomRotation(360),
+            transforms.Resize((args.img_size, args.img_size)),
+            transforms.Grayscale(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, ), (0.5, ))
+        ])
     transform = transforms.Compose([
         transforms.Resize((args.img_size, args.img_size)),
         transforms.Grayscale(),
@@ -252,9 +259,10 @@ def wallpaper_main(args):
 
     # If data augmentation is used, concatenate the augmented and normal datasets to get 34000 training images
     if args.aug_train:
-        train_dataset_aug = ImageFolder(os.path.join(data_root, 'train'), transform=transform_1)
+        train_dataset_aug_1 = ImageFolder(os.path.join(data_root, 'train'), transform=transform_1)
+        train_dataset_aug_2 = ImageFolder(os.path.join(data_root, 'train'), transform=transform_2)        
         train_dataset_normal = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
-        train_dataset = ConcatDataset([train_dataset_aug, train_dataset_normal])
+        train_dataset = ConcatDataset([train_dataset_aug_1, train_dataset_aug_2, train_dataset_normal])
     else:
         train_dataset = ImageFolder(os.path.join(data_root, 'train'), transform=transform)
 
@@ -266,11 +274,13 @@ def wallpaper_main(args):
     print(f"Training on {len(train_dataset)} images, testing on {len(test_dataset)} images.")
 
     # Initialize the baseline model, optimizer, and loss function
-    if args.baseline:
-        model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
-    # Initialize the baseline model, optimizer, and loss function
     if args.improved:
-        model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+        if args.aug_train:
+            model = VGG16(num_classes = 17).to(device)
+        else:
+            model = CNN2(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
+    else:
+        model = CNN(input_channels = 1, img_size = args.img_size, num_classes = num_classes).to(device)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss()

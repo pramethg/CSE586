@@ -137,5 +137,5 @@ notebooks/results/
 P3/data
 P3/baseline
 P3/improved
-P3/aug_baseline
-P3/aug_improved
+P3/augbase
+P3/augimp
