@@ -6,4 +6,4 @@
 | Project 2    | Feature Selection: Filter and Wrapper Implementation.                                                                                        |
 | Project 3    | Deep Learning                                                                                                                                |
 | Project 4    |  Reinforcement Learning: Classical Q-Learning and Deep Q-Learning                                                                                                                                            |
-| Term Project |                                                                                                                                              |
+| Term Project |  Denoising Medical Images using Deep Generative Learning                                                                                                                                            |
