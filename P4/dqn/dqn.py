@@ -13,7 +13,7 @@ action_arr = ['U', 'D', 'L', 'R']
 
 # Function for printing the maze if you need it
 def print_maze(maze):
-    print("██████████")
+    print("█"*len(maze))
     for row in maze:
         print("█", end='')
         for col in row:
@@ -24,7 +24,7 @@ def print_maze(maze):
             elif (col == 2):
                 print('O', end='')
         print("█")
-    print("██████████")
+    print("█"*len(maze))
 
 # Return a clean copy of the maze
 def get_new_maze():
@@ -65,15 +65,15 @@ def get_position_index(loc, width):
 # Try an iteration of the maze
 def tryMaze(max_moves):
     num_moves = 0
+    maze = get_new_maze()
     start_location = (0, 0)
-    end_location = (7, 7)
+    end_location = (len(maze), len(maze))
     current_location = start_location
     x = []
     y = []
     x.append(current_location[1] + 0.5)
     y.append(current_location[0] + 0.5)
     exploit_moves = np.argmax(model.predict(np.identity(64)), axis=1)
-    maze = get_new_maze()
     while (current_location != end_location and num_moves < max_moves):
         # Choose next action
         next_move = exploit_moves[get_position_index(current_location, width)]
@@ -85,16 +85,16 @@ def tryMaze(max_moves):
     return num_moves, x, y
 
 # Set up important variables
+maze = get_new_maze()
 start_location = (0, 0)
-end_location = (7, 7)
-width = 8
-height = 8
+end_location = (len(maze)-1, len(maze)-1)
+width = len(maze)
+height = len(maze)
 alpha = 0.95
 random_factor = 0.8
 drop_rate = 0.995
 max_moves = width * height * 2
 test_interval = 5
-maze = get_new_maze()
 allowed_states = np.zeros((width * height, 4))
 start_time = time.time()
 
@@ -223,6 +223,7 @@ for iteration in range (5000):
         cb.ax.tick_params(labelsize=16)
         fig.canvas.draw()
         plt.pause(1)
+        break
         
 
 fig2 = plt.figure(2)
