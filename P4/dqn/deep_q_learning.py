@@ -263,7 +263,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Q-learning maze solver")
     parser.add_argument("--maze_csv", type=str, default="maze-sample-10x10.csv", help="The path to the maze CSV file")
     parser.add_argument("--config_file", type=str, default='config.cfg', help="The path to the config file")
-    args = parser.parse_args(args = ["--maze_csv", "maze_samples/maze-regular-3x3.csv", "--config_file", "config.cfg"])
+    args = parser.parse_args()
     cfg = CFG(args.config_file)
 
     # Move to the device 
