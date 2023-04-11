@@ -178,3 +178,12 @@ class MazeEnvRegular3x3(MazeEnv):
     def __init__(self, enable_render=True):
         super(MazeEnvRegular3x3, self).__init__(maze_file="maze2d_regular_3x3.npy", enable_render=enable_render)
 
+class MazeEnvRegular5x5(MazeEnv):
+
+    def __init__(self, enable_render=True):
+        super(MazeEnvRegular5x5, self).__init__(maze_file="maze2d_regular_5x5.npy", enable_render=enable_render)
+
+class MazeEnvRegular9x9(MazeEnv):
+    
+        def __init__(self, enable_render=True):
+            super(MazeEnvRegular9x9, self).__init__(maze_file="maze2d_regular_9x9.npy", enable_render=enable_render)

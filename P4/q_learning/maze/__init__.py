@@ -86,3 +86,15 @@ register(
     entry_point='maze.maze_env:MazeEnvRegular3x3',
     max_episode_steps=1000000,
 )
+
+register(
+    id='maze-regular-5x5-v0',
+    entry_point='maze.maze_env:MazeEnvRegular5x5',
+    max_episode_steps=1000000,
+)
+
+register(
+    id='maze-regular-9x9-v0',
+    entry_point='maze.maze_env:MazeEnvRegular9x9',
+    max_episode_steps=1000000
+)
