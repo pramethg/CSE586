@@ -94,6 +94,12 @@ register(
 )
 
 register(
+    id='maze-regular-7x7-v0',
+    entry_point='maze.maze_env:MazeEnvRegular7x7',
+    max_episode_steps=1000000,
+)
+
+register(
     id='maze-regular-9x9-v0',
     entry_point='maze.maze_env:MazeEnvRegular9x9',
     max_episode_steps=1000000
