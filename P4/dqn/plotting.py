@@ -1,0 +1,21 @@
+import matplotlib.pyplot as plt
+
+def plot_dqn(name, conf, size):
+    plt.figure(figsize=(10, 10))
+    plt.suptitle(f'{name} {size}X{size} Maze Configuration', fontsize=20)
+    plt.subplot(2, 2, 1)
+    plt.imshow(plt.imread(f'maze-{conf}-{size}x{size}_layout.png'))
+    plt.title('Maze Layout', fontsize=16)
+    plt.axis('off')
+    plt.subplot(2, 2, 2)
+    plt.imshow(plt.imread(f'maze-{conf}-{size}x{size}_visitation_frequency.png'))
+    plt.axis('off')
+    plt.subplot(2, 2, 3)
+    plt.imshow(plt.imread(f'dqn_maze-{conf}-{size}x{size}_steps.png'))
+    plt.axis('off')
+    plt.subplot(2, 2, 4)
+    plt.imshow(plt.imread(f'dqn_maze-{conf}-{size}x{size}_rewards.png'))
+    plt.axis('off')
+    plt.tight_layout()
+    plt.savefig(f'imgs/{conf}{size}.png')
+    plt.close()
